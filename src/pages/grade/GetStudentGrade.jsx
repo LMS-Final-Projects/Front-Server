@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {api} from "../../global/api/Api";
+import {api} from "../../api/Api";
+
 
 const GradeReportContainer = styled.div`
   max-width: 800px;

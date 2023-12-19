@@ -1,26 +1,28 @@
 import React from 'react'
+import {Link} from "react-router-dom";
 
 function StudentComponent() {
     return (
         <>
             <div className='list-group list-group-flush'>
-                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#dashboardMenu" role="button"
+                <a className='list-group-item py-2'
                    aria-expanded="false" aria-controls="dashboardMenu">
                     <i className='bi bi-speedometer2 fs-5 me-3'></i> <span>관리자 메뉴</span>
                 </a>
-                <div className="collapse" id="dashboardMenu">
-                    <a className='list-group-item py-2' href="#dashboard-1">Dashboard 1</a>
-                    <a className='list-group-item py-2' href="#dashboard-2">Dashboard 2</a>
-                    <a className='list-group-item py-2' href="#dashboard-3">Dashboard 3</a>
-                </div>
-                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#gradeMenu" role="button"
-                   aria-expanded="false" aria-controls="gradeMenu">
-                    <i className='bi bi-file-text-fill fs-5 me-3'></i> <span>성적 서비스</span>
+                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#noticeMenu" role="button"
+                   aria-expanded="false" aria-controls="noticeMenu">
+                    <i className="bi bi-megaphone-fill"></i> <span>공지사항</span>
                 </a>
-                <div className="collapse" id="gradeMenu">
-                    <a className='list-group-item py-2' href="#home-1">Home 1</a>
-                    <a className='list-group-item py-2' href="#home-2">Home 2</a>
-                    <a className='list-group-item py-2' href="#home-3">Home 3</a>
+                <div className="collapse" id="noticeMenu">
+                    <Link to ="admin/notice " className='list-group-item py-2' >공지사항 보기</Link>
+                    <Link to ="admin/notice/writeNotice " className='list-group-item py-2' >공지사항 작성</Link>
+                </div>
+                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#postService" role="button"
+                   aria-expanded="false" aria-controls="postService">
+                    <i className="bi bi-send-fill"></i> <span>쪽지 서비스</span>
+                </a>
+                <div className="collapse" id="postService">
+                    <Link to = "admin/post" className='list-group-item py-2'>내 쪽지함</Link>
                 </div>
             </div>
         </>

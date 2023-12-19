@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:8000';
+axios.defaults.baseURL = 'http://localhost:1000';
 
 export const api = async (url, method, data) => {
     const body = await axios({
@@ -28,6 +28,7 @@ export const exceptionApi = async (url, method, data) => {
     return body.data;
 };
 
+
 axios.interceptors.response.use(
     (response) => {
         return response;
@@ -41,11 +42,11 @@ axios.interceptors.response.use(
 );
 
 const handle401Error = (error) => {
-    if (error.response.data === "Unauthorized: Expired JWT token") {
-        window.location.href = '/reissue';
-    } else {
-        window.location.href = '/';
-    }
+    // if (error.response.data === "Unauthorized: Expired JWT token") {
+    //     window.location.href = '/reissue ';
+    // } else {
+    //     window.location.href = '/';
+    // }
 };
 
 
