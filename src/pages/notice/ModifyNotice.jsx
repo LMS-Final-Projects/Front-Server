@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import { api } from '../../api/Api';
 import { useRecoilValue } from 'recoil';
 import { idAtom, roleAtom } from '../../atom/LoginAtom';
-
 import FileUploadModal from "./FileUploadModal";
 
-const WriteNotice = ({files, setFiles}) => {
-
+const ModifyNotice = ({ files, setFiles }, location) => {
+    const noticeDetails  = location?.state?.noticeDetails || {};
     const currentDate = new Date();
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [file, setFile] = useState(null);
-    const id = useRecoilValue(idAtom)
-    const role = useRecoilValue(roleAtom)
+    const id = useRecoilValue(idAtom);
+    const role = useRecoilValue(roleAtom);
 
     const openModal = () => {
         setModalIsOpen(true);
@@ -26,39 +25,37 @@ const WriteNotice = ({files, setFiles}) => {
     };
 
     const handleUpload = async (e) => {
-        // e.preventDefault() // 기본 폼 제출 동작 방지
+        e.preventDefault();
         const formData = new FormData();
-        const adminId = id
-        const adminBoardId =111
+        const adminId = id;
+        const adminBoardId = 111;
         const fileName = file.name;
         formData.append('file', file);
-        formData.append('adminId',adminId)
-        formData.append('adminBoardId',adminBoardId)
-        formData.append('fileName',fileName)
+        formData.append('adminId', adminId);
+        formData.append('adminBoardId', adminBoardId);
+        formData.append('fileName', fileName);
 
         try {
-            const response = await api('/api/v1/notices/uploadNoticeFile', 'POST',
-                formData);
+            const response = await api('/api/v1/notices/uploadNoticeFile', 'POST', formData);
 
             if (response.errorMsg === "") {
-                console.log(response)
+                console.log(response);
                 setFiles((files) => [...files, response.data]);
-                alert("성공")
+                alert("성공");
             } else {
-                alert("실패")
+                alert("실패");
             }
         } catch (error) {
             console.error('Error uploading file:', error);
         }
-
     };
-    console.log(files)
+    console.log(files);
 
     const [formData, setFormData] = useState({
-        title: '',
+        title: noticeDetails.title,
         upLoadTime: currentDate,
-        content: '',
-        fileUrl: '',
+        content: noticeDetails.content,
+        fileUrl: noticeDetails.fileUrl || '',
     });
 
     const handleChange = (e) => {
@@ -105,7 +102,7 @@ const WriteNotice = ({files, setFiles}) => {
         <div>
             {role === 'ADMIN' && (
                 <div>
-                    <div className="bg-dark text-white p-2 mb-4">공지작성</div>
+                    <div className="bg-dark text-white p-2 mb-4">공지 수정</div>
                     <form onSubmit={handleSubmit} className="bg-white text-dark p-3 rounded" style={{ border: '2px solid black' }}>
                         <div className="mb-3">
                             <label htmlFor="title" className="form-label">
@@ -123,7 +120,7 @@ const WriteNotice = ({files, setFiles}) => {
                             <label htmlFor="notice" className="form-label">
                                 작성자:
                             </label>
-                            <input id="userName" name="userName" className="form-control" value={"관리자"} readOnly={true} />
+                            <input id="notice" name="notice" className="form-control" value={"관리자"} readOnly={true} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="content" className="form-label">
@@ -139,12 +136,12 @@ const WriteNotice = ({files, setFiles}) => {
                         </div>
                         <div className="d-flex justify-content-between">
                             <div>
-                                첨부 파일: { files && files.length > 0 && files.map(file =>
+                                첨부 파일: {files && files.length > 0 && files.map(file =>
                                 <a
                                     href={`/download/file?fileName=${encodeURIComponent(file)}`}
                                     target="_blank">{file}</a>
                             )}
-                                <button type = "button" className="btn btn-primary" onClick={openModal}>+</button>
+                                <button type="button" className="btn btn-primary" onClick={openModal}>+</button>
                             </div>
                             <button type="submit" className="btn btn-primary">
                                 보내기
@@ -153,10 +150,10 @@ const WriteNotice = ({files, setFiles}) => {
                     </form>
                 </div>
             )}
-            <FileUploadModal isOpen={modalIsOpen} onRequestClose={closeModal} onRequestUpload={handleUpload}>
+            <FileUploadModal isOpen={modalIsOpen} onRequestClose={closeModal} onRequestUpload={handleUpload} onRequestChange={handleFileChange()}>
             </FileUploadModal>
         </div>
     );
 };
 
-export default WriteNotice;
+export default ModifyNotice;

@@ -1,31 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import {Link, useParams} from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 
 import {useRecoilValue} from "recoil";
 import {idAtom, roleAtom} from "../../atom/LoginAtom";
 import {api} from "../../api/Api";
-import NoticeFileUpload from "./NoticeFileUpload";
+import {v4 as uuidv4} from "uuid";
+import {useNavigate} from "react-router";
 
 
 
 
 
 function WatchNoticeDetails () {
+    const navigate = useNavigate();
     const [files, setFiles] = useState([]);
+    const [selectedNotices, setSelectedNotices] = useState([]);
     const role = useRecoilValue(roleAtom);
-    const { id } = useParams();
+    const memberId = useRecoilValue(idAtom);
+    const { noticeId } = useParams();
     const [noticeDetails, setNoticeDetails] = useState('');
     const [comments, setComments] = useState([]);
 
     const [formData, setFormData] = useState({
         comments: '',
-        adminBoardId: '',
+        noticeId: '',
         email: ''
     });
 
     const [formData2, setFormData2] = useState({
         comments: '',
-        adminBoardId: '',
+        noticeId: '',
         userEmail: '',
         commentId: ''
     });
@@ -35,17 +39,34 @@ function WatchNoticeDetails () {
 
 
     const [selectedCommentId, setSelectedCommentId] = useState();
-    const userId = useRecoilValue(idAtom);
 
     const [response, setResponse] = useState();
+
+    const handleDeleteSelectedNotices = async () => {
+        try {
+            const selectedNoticeIds = selectedNotices.map(selectedNotice => selectedNotice.noticeId);
+            // UUID 문자열을 UUID 객체로 변환
+            const uuidObjects = selectedNoticeIds.map(uuid => uuidv4(uuid));
+
+            const NoticeDeleteRequest = {
+                noticeIds: uuidObjects
+            };
+
+            const response = await api(`api/v1/notices/delete`, 'POST', NoticeDeleteRequest);
+            if (response.code === '') {
+                alert('공지 삭제 성공!');
+            } else {
+                alert('공지 삭제 실패:', response.statusText);
+            }
+        } catch (error) {
+            alert('Error deleting notices:', error);
+        }
+    };
 
     const handleReply = (commentId) => {
         setSelectedCommentId(commentId);
     };
 
-    const handleCancelReply = () => {
-        setFormData2(prevent =>({...prevent, comments: ""} ))
-    };
 
 
 
@@ -68,14 +89,12 @@ function WatchNoticeDetails () {
 
     const handleCommentSubmit = async () => {
         try {
-            const NoticeCommentRequest = {
-                userId: userId,
-                email: "111@1111",
-                commentId: formData2.commentId,
-                comments: formData.comments,
-                adminBoardId: id
+            const CommentSaveRequest = {
+                memberId: memberId,
+                comment: formData.comments,
+                boardId: noticeId
             };
-            await api('/api/v1/board/writeNoticeComments', 'POST', NoticeCommentRequest);
+            await api('/api/v1/comments/notices', 'POST', CommentSaveRequest);
         } catch (error) {
             console.error('Error submitting comment:', error);
         }
@@ -85,7 +104,7 @@ function WatchNoticeDetails () {
         try {
             const NoticeCommentDeleteRequest = {
                 commentId: comentId,
-                userId: id
+                userId: memberId
             };
 
             // id로 유저 정보 찾아오기
@@ -106,10 +125,10 @@ function WatchNoticeDetails () {
     const handlePostReply = async () => {
         try {
             const NoticeReplyCommentRequest = {
-                userId: userId,
+                userId: memberId,
                 email: "111@1111",
                 comments: formData2.comments,
-                adminBoardId: id,
+                noticeId: noticeId,
                 commentId: selectedCommentId
             };
             await api('/api/v1/board/writeNoticeReplyComments', 'POST', NoticeReplyCommentRequest);
@@ -120,28 +139,38 @@ function WatchNoticeDetails () {
         }
     };
 
+    const handleModifyClick = async (title) => {
+
+        try {
+            // 페이지 이동과 함께 데이터 전달
+            navigate(`/admin/notice/modifyNotice/${noticeDetails}`, { state: { noticeDetails } });
+            // await handleNoticeDetails(id); // 필요하다면 이 부분을 사용
+        } catch (error) {
+            console.error('Error handling title click:', error);
+        }
+    };
+
     useEffect(() => {
         const fetchNoticeDetails = async () => {
 
             try {
                 const NoticeReplyCommentRequest = {
-                    userId: userId,
+                    userId: memberId,
                     userEmail: "111@1111",
                     comments: formData2.comment ,
-                    adminBoardId: id,
+                    noticeId: noticeId,
                     commentId: selectedCommentId
                 };
 
                 const NoticeFileRequest = {
-                    adminId: userId,
-                   adminBoardId: id,
+                    memberId: memberId,
+                   noticeId: noticeId,
                 };
-
-                const noticeResponse = await api(`api/v1/notices/getNotice/${id}`, 'GET');
+                const noticeResponse = await api(`api/v1/notices/${noticeId}`, 'GET');
                 console.log(noticeResponse.data)
                 setNoticeDetails(noticeResponse.data);
                 console.log(noticeDetails);
-                const commentResponse = await api(`api/v1/comments/${id}`, `GET`)
+                const commentResponse = await api(`api/v1/comments/${noticeId}`, `GET`)
                 console.log(commentResponse)
                 setComments(commentResponse.data);
                 const fileResponse = await api(`api/v1/notices/getNoticeFile` ,`POST`, NoticeFileRequest )
@@ -157,7 +186,7 @@ function WatchNoticeDetails () {
         if (!noticeDetails) {
             fetchNoticeDetails();
         }
-    }, [id]);
+    }, [noticeId]);
 
 
 
@@ -167,61 +196,88 @@ function WatchNoticeDetails () {
 
     if (!noticeDetails) {
 
-        return <div>Loading...</div>;
+        return <div style={{ color: 'white', fontSize: '2em' }}>Loading...</div>
     }
 
     return (
         <>
-            <div className= "bg-dark text-white p-2 mb-4">제목: {noticeDetails.title}</div>
-            <div className= "bg-dark text-white p-2 mb-4">내용: {noticeDetails.content}</div>
-            <div className=  "bg-white rounded mt-4 p-4">
-                <NoticeFileUpload noticeDetails={noticeDetails} files={files} setFiles={setFiles}/>
-            <input
-                onChange={handleChange}
-                id="comments"
-                name="comments"
-                placeholder={"댓글을 입력 하세요."}
-                value={formData.comments}
-            />
-            <button onClick={handleCommentSubmit}>입력</button>
-            <div>댓글</div>
-            {comments && comments.length > 0 && comments.map(comment => (
-                <div key={comment.id} className="comment">
-                    <div className="user-email">{comment.userEmail}</div>
-                    <div className="comment-text">{comment.comments}</div>
-                    <div className="create-date">{comment.createAt}</div>
-                    <button onClick={() => handleReply(comment.id)}>↳ 대댓글 작성</button>
-                    <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>
-
-                    {selectedCommentId === comment.id && (
-                        <div>
-                            <input
-                                onChange={handleChange2}
-                                id="reply"
-                                name="comments"
-                                placeholder={"대댓글을 입력하세요"}
-                                value={formData2.comments}
-                            />
-                            <button onClick={handlePostReply}>확인</button>
-                            <button onClick={handleCancelReply}>취소</button>
-                        </div>
-                    )}
-
-                    {/* 대댓글 목록 */}
-                    {replyText && replyText.length > 0 && (
-                        <div className="reply-list">
-                            {Array.isArray(replyText) && replyText.map(reply => (
-                                <div key={reply.id} className="reply">
-                                    <div className="user-email">{reply.userEmail}</div>
-                                    <div className="comment-text">{reply.comments}</div>
-                                    <div className="create-date">{reply.createAt}</div>
-                                    <button onClick={() => handleDeleteComment(reply.id)}>삭제</button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+            <div className="bg-white text-dark p-3 rounded" style={{ border: '2px solid black' }}>
+                <div className="mb-3">
+                    <label htmlFor="title" className="form-label">
+                        제목:
+                    </label>
+                    <div className="form-control">{noticeDetails.title}</div>
                 </div>
-            ))}
+                <div className="form-label mb-3">작성 날짜:
+                    <div className="form-control">{noticeDetails.createAt}</div>
+                </div>
+                <div className="form-label mb-3">수정 날짜:
+                    <div className="form-control">{noticeDetails.updateAt}</div>
+                </div>
+                <div className="form-label mb-3">내용:
+                    <textarea id="content" name="content" className="form-control" value={noticeDetails.content} readOnly={true}/>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <button className="btn btn-primary" type="button" onClick={handleModifyClick}>
+                        수정
+                    </button>
+                    <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedNotices}>
+                        삭제
+                    </button>
+                </div>
+            </div>
+
+            <div className=  "bg-white rounded mt-4 p-4">
+                <div  className="mb-3">댓글 목록: </div>
+                <div noticeDetails={noticeDetails} files={files} setFiles={setFiles}/>
+                <div className="mb-3">
+                    <input
+                        className="form-control"
+                        onChange={handleChange}
+                        id="comments"
+                        name="comments"
+                        placeholder="댓글을 입력하세요."
+                        value={formData.comments}
+                    />
+                </div>
+                <div className="d-flex justify-content-end">
+                <button className="btn btn-primary" type="button" onClick={handleCommentSubmit}>입력</button>
+                </div>
+                {comments && comments.length > 0 && comments.map(comment => (
+                    <div key={comment.id} className="comment">
+                        <div className="user-email">{comment.userEmail}</div>
+                        <div className="comment-text">{comment.comments}</div>
+                        <div className="create-date">{comment.createAt}</div>
+                        <button onClick={() => handleReply(comment.id)}>↳ 대댓글 작성</button>
+                        <button onClick={() => handleDeleteComment(comment.id)}>삭제</button>
+
+                        {selectedCommentId === comment.id && (
+                            <div>
+                                <input
+                                    onChange={handleChange2}
+                                    id="reply"
+                                    name="comments"
+                                    placeholder={"대댓글을 입력하세요"}
+                                    value={formData2.comments}
+                                />
+                                <button className="btn btn-primary" type="button" onClick={handlePostReply}>확인</button>
+                            </div>
+                        )}
+
+                        {replyText && replyText.length > 0 && (
+                            <div className="reply-list">
+                                {Array.isArray(replyText) && replyText.map(reply => (
+                                    <div key={reply.id} className="reply">
+                                        <div className="user-email">{reply.userEmail}</div>
+                                        <div className="comment-text">{reply.comments}</div>
+                                        <div className="create-date">{reply.createAt}</div>
+                                        <button onClick={() => handleDeleteComment(reply.id)}>삭제</button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ))}
             </div>
         </>
     );

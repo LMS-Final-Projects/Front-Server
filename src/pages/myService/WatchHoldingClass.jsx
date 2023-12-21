@@ -72,25 +72,33 @@ function WatchHoldingClass() {
     };
 
     return (
-        <>
-            <div>
+        <div>
+            {role === 'PROFESSOR' && (
+                <div>
+                    <div className="bg-dark text-white p-2 mb-4">
+                        강의 요청 목록
+                    </div>
+                    <div className="bg-white rounded mt-4 p-4">
+
+                    </div>
+                </div>
+            )}
+
+            {role === 'STUDENT' && (
+                <div>
                 <div className="bg-dark text-white p-2 mb-4">
                     수강 신청 목록
                 </div>
-                {role ===  'PROFESSOR' && (
-                    <div className="bg-white rounded mt-4 p-4">
-                    </div>
-                )}
+                <div className="bg-white rounded mt-4 p-4">
+                    
+                </div>
+                </div>
+            )}
 
-                {role === 'STUDENT' && (
-                    <div className="bg-white rounded mt-4 p-4">
-                    </div>
-                )}
-                {!role && (
-                    <div>유저 정보를 불러오는 중입니다...</div>
-                )}
-            </div>
-        </>
+            {!role && (
+                <div>유저 정보를 불러오는 중입니다...</div>
+            )}
+        </div>
     )
 }
 

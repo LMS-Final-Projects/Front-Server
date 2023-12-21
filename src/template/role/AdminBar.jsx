@@ -24,6 +24,13 @@ function StudentComponent() {
                 <div className="collapse" id="postService">
                     <Link to = "admin/post" className='list-group-item py-2'>내 쪽지함</Link>
                 </div>
+                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#lectureMenu" role="button"
+                   aria-expanded="false" aria-controls="lectureMenu">
+                    <i className="bi bi-pencil-square"></i> <span>관리자 승인</span>
+                </a>
+                <div className="collapse" id="lectureMenu">
+                    <Link to ="admin/lecture " className='list-group-item py-2' >요청 강의 조회</Link>
+                </div>
             </div>
         </>
     );

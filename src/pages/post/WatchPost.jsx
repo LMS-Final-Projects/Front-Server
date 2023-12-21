@@ -31,11 +31,11 @@ const WatchPost = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const majorName = await api(`api/v1/mail/majorName`, `GET`);
+        const lectureName = await api(`api/v1/mail/lectureName`, `GET`);
 
         const watchRequest = {
           receiverId: id,
-          majorName: majorName,
+          lectureName: lectureName,
         };
 
         const response = await api("api/v1/mail/getAll", "POST", watchRequest);
@@ -112,7 +112,7 @@ const WatchPost = () => {
               </tbody>
             </table>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Link to="/student/post/writePost">
+              <Link to="/admin/post/writePost">
                 <button className="btn btn-primary" type="submit">
                   쪽지 쓰기
                 </button>
@@ -154,7 +154,7 @@ const WatchPost = () => {
                 </tbody>
               </table>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Link to="/student/post/writePost">
+                <Link to="/professor/post/writePost">
                   <button className="btn btn-primary" type="submit">
                     쪽지 쓰기
                   </button>

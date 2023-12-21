@@ -3,7 +3,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import {useRecoilValue} from "recoil";
 import {api} from "../../api/Api";
 import {roleAtom} from "../../atom/LoginAtom";
-
+import { v4 as uuidv4 } from 'uuid';
 
 
 function WatchNotice() {
@@ -43,22 +43,31 @@ function WatchNotice() {
         }
     }
 
+    //여기서 문제 발생함.
     const handleCheckboxChange = (event, notice) => {
         if (event.target.checked) {
             setSelectedNotices(prevSelected => [...prevSelected, notice]);
+            console.log("테스트1")
             console.log(selectedNotices)
         } else {
-            setSelectedNotices(prevSelected => prevSelected.filter(selectedNotice => selectedNotice.adminBoardId !== notice.adminBoardId));
+            setSelectedNotices(prevSelected => prevSelected.filter(selectedNotices => selectedNotices.id !== notice.id));
             console.log(selectedNotices)
         }
     }
 
 
 
-    const handleDeleteSelectedNotices = async (noticeId) => {
+    const handleDeleteSelectedNotices = async () => {
         try {
-            const response = await api(`api/v1/notices/${noticeId}`, 'DELETE');
-            if (response.errorMsg === '') {
+            const selectedNoticeIds = selectedNotices.map(selectedNotice => selectedNotice.noticeId);
+
+
+            const NoticeDeleteRequest = {
+                noticeIds: selectedNoticeIds
+            };
+
+            const response = await api(`api/v1/notices/delete`, 'POST', NoticeDeleteRequest);
+            if (response.code === '') {
                 alert('공지 삭제 성공!');
             } else {
                 alert('공지 삭제 실패:', response.statusText);
@@ -70,10 +79,10 @@ function WatchNotice() {
 
     const navigate = useNavigate();
 
-    const handleTitleClick = async (id) => {
+    const handleTitleClick = async (noticeId) => {
         try {
-            navigate(`/notice/watchNotice/details/${id}`);
-            await handleNoticeDetails(id);
+            navigate(`/admin/notice/watchNotice/${noticeId}`);
+            await handleNoticeDetails(noticeId);
         } catch (error) {
             console.error('Error handling title click:', error);
         }
@@ -91,8 +100,8 @@ function WatchNotice() {
                             <thead className="thead-dark">
                             <tr>
                                 <th scope="col">작성날짜</th>
-                                <th scope="col">수정날짜</th>
-                                <th scope="col">관리자 Email</th>
+                                <th scope="col">이메일</th>
+                                <th scope="col">작성자</th>
                                 <th scope="col">제목</th>
                                 <th scope="col">선택</th>
                             </tr>
@@ -101,18 +110,18 @@ function WatchNotice() {
                             {notices.map((notice) => (
                                 <tr key={notice.noticeId}>
                                     <td>{notice.createAt}</td>
-                                    <td>{notice.updateAt}</td>
-                                    <td>{notice.email}</td>
+                                    <td>amdin@gmail.com</td>
+                                    <td>관리자</td>
                                     <td>
-                                        <button onClick={() => handleTitleClick(notice.id)}>
+                                        <div style={{ cursor: 'pointer' }} onClick={() => handleTitleClick(notice.id)}>
                                             {notice.title}
-                                        </button>
+                                        </div>
                                     </td>
                                     <td>
                                         <input
                                             type="checkbox"
                                             onChange={(event) => handleCheckboxChange(event, notice)}
-                                            checked={selectedNotices.some(selectedNotice => selectedNotice.adminBoardId === notice.adminBoardId)}
+                                            checked={selectedNotices.some(selectedNotice => selectedNotice.id === notice.id)}
                                         />
                                     </td>
                                 </tr>
@@ -138,17 +147,19 @@ function WatchNotice() {
                             <thead className="thead-dark">
                             <tr>
                                 <th scope="col">작성날짜</th>
+                                <th scope="col">이메일</th>
+                                <th scope="col">작성자</th>
                                 <th scope="col">제목</th>
-                                <th scope="col">관리자</th>
                             </tr>
                             </thead>
                             <tbody>
                             {notices.map((notice) => (
-                                <tr key={notice.id}>
+                                <tr key={notice.noticeId}>
                                     <td>{notice.createAt}</td>
-                                    <td>{notice.email}</td>
+                                    <td>amdin@gmail.com</td>
+                                    <td>관리자</td>
                                     <td>
-                                        <div onClick={() => handleTitleClick(notice.noticeId)}>
+                                        <div style={{ cursor: 'pointer' }} onClick={() => handleTitleClick(notice.id)}>
                                             {notice.title}
                                         </div>
                                     </td>

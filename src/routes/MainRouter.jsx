@@ -8,12 +8,15 @@ import WatchNotice from "../pages/notice/WatchNotice";
 import WatchClass from "../pages/myService/WatchClass";
 import TimeTable from "../pages/myService/TimeTable";
 import GetStudentGrade from "../pages/grade/GetStudentGrade";
-import WatchPost from "../pages/mail/WatchPost";
-import WritePost from "../pages/mail/WritePost";
+import WatchPost from "../pages/post/WatchPost";
+import WritePost2 from "../pages/post/WritePost2";
 import WatchHoldingClass from "../pages/myService/WatchHoldingClass";
 import WriteNotice from "../pages/notice/WriteNotice";
 import WatchNoticeDetails from "../pages/notice/WatchNoticeDetails";
 import WatchClassDetails from "../pages/classBoard/WatchClassDetails";
+import ModifyNotice from "../pages/notice/ModifyNotice";
+import ApplyLecture from "../pages/lecture/ApplyLecture";
+import AcceptLecture from "../pages/lecture/AcceptLecture";
 
 function MainRouter({ Toggle,Role }) {
     return (
@@ -27,8 +30,8 @@ function MainRouter({ Toggle,Role }) {
                             <Route path="mySchedule" element={<TimeTable />} />
                             <Route path="myHoldingLecture" element={<WatchHoldingClass />} />
                         </Route>
-                        <Route path="post/*" element={<WatchPost/>}>
-                             <Route path="writePost" element={<WritePost />} />
+                        <Route path="post" element={<WatchPost/>}>
+                             <Route path="writePost" element={<WritePost2 />} />
                         </Route>
                         <Route path="notice"element={<WatchNotice />} />
                         <Route path="grade/*">
@@ -44,23 +47,23 @@ function MainRouter({ Toggle,Role }) {
                             <Route path="mySchedule" element={<TimeTable />} />
                             <Route path="myHoldingLecture" element={<WatchHoldingClass />} />
                         </Route>
-                        <Route path="post/*" element={<WatchPost/>}>
-                            <Route path="writePost" element={<WritePost />} />
-                        </Route>
+                        <Route path="post/*" element={<WatchPost/>}/>
+                        <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />} />
+                        <Route path="notice/watchNotice/:noticeId" element={<WatchNoticeDetails/>} />
                         <Route path="grade/*">
                             <Route path="get" element={<GetStudentGrade />} />
                         </Route>
                     </Route>
                     }
                     {Role = "ADMIN" && <Route path="/admin/*" >
-                        <Route path="post/*" element={<WatchPost/>}>
-                            <Route path="writePost" element={<WritePost />} />
-                        </Route>
-                        <Route path="notice/*"element={<WatchNotice />}>
-                            <Route path="watchNotice" element={<WatchNoticeDetails/>} />
-                            <Route path="writeNotice" element={<WriteNotice />} />
-                        </Route>
+                        <Route path="lecture" element={<AcceptLecture/>}/>
+                        <Route path="post/*" element={<WatchPost/>}/>
+                        <Route path="post/writePost" element={<WritePost2 />} />
+                        <Route path="notice"element={<WatchNotice />}/>
+                        <Route path="notice/watchNotice/:noticeId" element={<WatchNoticeDetails/>} />
+                        <Route path="notice/writeNotice" element={<WriteNotice />} />
+                        <Route path="notice/modifyNotice/:noticeDetails" element={<ModifyNotice />} />
                     </Route>
                     }
                 </Routes>

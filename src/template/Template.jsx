@@ -18,12 +18,15 @@ const Template = () => {
 
     const get = async () => {
         try {
-            const response = await exceptionApi("/api/v1/member/info", "POST");
-            setId(response.data.id);
-            setRole(response.data.role);
-            console.log(response);
-            console.log(response.data.id);
-            console.log(response.data.role);
+            // const response = await exceptionApi("/api/v1/member/info", "POST");
+            // setId(response.data.id);
+            // setRole(response.data.role);
+            // console.log(response);
+            // console.log(response.data.id);
+            // console.log(response.data.role);
+            setId("5fc2b170-3901-4891-a9cf-ca47f0efcbe4");
+            setRole("ADMIN");
+
         } catch (error) {
             window.location.href = '/login';
         }
