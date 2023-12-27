@@ -21,7 +21,7 @@ const AcceptLecture = () => {
 
     const handleCallLecture = async  () => {
 
-        const response = await api(`/api/v1/lecture/manager/${id}`, 'GET');
+        const response = await api(`/api/v1/manager/lectures/holding`, 'GET');
 
         try{
         if (response.data.errorMsg === '') {

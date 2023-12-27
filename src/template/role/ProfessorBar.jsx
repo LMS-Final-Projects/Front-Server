@@ -24,6 +24,7 @@ function StudentComponent() {
                 <div className="collapse" id="myService">
                     <Link to ="professor/myService/mySchedule" className='list-group-item py-2'>내 강의 시간표</Link>
                     <Link to ="professor/myService/myLecture" className='list-group-item py-2'>내 강의 목록</Link>
+                    <Link to ="professor/myService/registration" className='list-group-item py-2'>강의 등록</Link>
                     <Link to ="professor/myService/myHoldingLecture" className='list-group-item py-2'>신청 강의 대기 현황</Link>
                 </div>
                 <a className='list-group-item py-2' data-bs-toggle="collapse" href="#noticeMenu" role="button"

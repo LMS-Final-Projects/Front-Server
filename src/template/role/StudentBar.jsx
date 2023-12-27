@@ -37,7 +37,7 @@ function StudentBar() {
                     <i className="bi bi-send-fill"></i> <span>쪽지 서비스</span>
                 </a>
                 <div className="collapse" id="postService">
-                    <Link to = "student/post" className='list-group-item py-2' href="/">내 쪽지함</Link>
+                    <Link to = "student/post" className='list-group-item py-2'>내 쪽지함</Link>
                 </div>
             </div>
         </>

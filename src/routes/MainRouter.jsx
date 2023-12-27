@@ -17,6 +17,7 @@ import WatchClassDetails from "../pages/classBoard/WatchClassDetails";
 import ModifyNotice from "../pages/notice/ModifyNotice";
 import ApplyLecture from "../pages/lecture/ApplyLecture";
 import AcceptLecture from "../pages/lecture/AcceptLecture";
+import RegistrationForm from "../pages/myService/RegistrationForm";
 
 function MainRouter({ Toggle,Role }) {
     return (
@@ -28,11 +29,11 @@ function MainRouter({ Toggle,Role }) {
                         <Route path="myService/*">
                             <Route path="myLecture" element={<WatchClass />} />
                             <Route path="mySchedule" element={<TimeTable />} />
+                            <Route path="myLecture/watchClass/:classId" element={<WatchClassDetails />}/>
                             <Route path="myHoldingLecture" element={<WatchHoldingClass />} />
                         </Route>
-                        <Route path="post" element={<WatchPost/>}>
-                             <Route path="writePost" element={<WritePost2 />} />
-                        </Route>
+                        <Route path="post" element={<WatchPost/>}/>
+                        <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />} />
                         <Route path="grade/*">
                             <Route path="get" element={<GetStudentGrade />} />
@@ -41,10 +42,10 @@ function MainRouter({ Toggle,Role }) {
                     }
                     {Role = "PROFESSOR" && <Route path="/professor/*" >
                         <Route path="myService/*">
-                            <Route path="myLecture/*" element={<WatchClass />}>
-                                <Route path="watchClass" element={<WatchClassDetails />}/>
-                            </Route>
+                            <Route path="myLecture/*" element={<WatchClass />}/>
+                            <Route path="myLecture/watchClass/:classId" element={<WatchClassDetails />}/>
                             <Route path="mySchedule" element={<TimeTable />} />
+                            <Route path="registration" element={<RegistrationForm />} />
                             <Route path="myHoldingLecture" element={<WatchHoldingClass />} />
                         </Route>
                         <Route path="post/*" element={<WatchPost/>}/>

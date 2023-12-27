@@ -1,10 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from "recoil";
-import styled from "styled-components";
-import {idAtom, roleAtom} from "../../atom/LoginAtom";
+import {emailAtom, idAtom, roleAtom} from "../../atom/LoginAtom";
 import {api, exceptionApi} from "../../api/Api";
-import * as PropTypes from "prop-types";
-
 
 
 const WritePost2 = () => {
@@ -12,6 +9,7 @@ const WritePost2 = () => {
     const [memberName,setMemberName] =useState();
     const role = useRecoilValue(roleAtom);
     const id = useRecoilValue(idAtom);
+    const email = useRecoilValue(emailAtom);
     const [formData, setFormData] = useState({
         title: '',
         senderEmail: '',
@@ -29,14 +27,11 @@ const WritePost2 = () => {
 
     const get = async () => {
         try {
-            // const response = await exceptionApi("/api/v1/member/info", "POST");
-            // setId(response.data.id);
-            // setRole(response.data.role);
-            // console.log(response);
-            // console.log(response.data.id);
-            // console.log(response.data.role);
-            setMemberName("채오성")
-
+            const response = await exceptionApi("/api/v1/member/info", "POST");
+            console.log(response);
+            console.log(response.data.id);
+            console.log(response.data.role);
+            setMemberName(response.data.name)
         } catch (error) {
         }
     };
@@ -293,7 +288,7 @@ const WritePost2 = () => {
                             <label htmlFor="notice" className="form-label">
                                 email:
                             </label>
-                            <input id="email" name="eamil" className="form-control" value={"admin@google.com"} readOnly={true} />
+                            <input id="email" name="eamil" className="form-control" value={email} readOnly={true} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="notice" className="form-label">

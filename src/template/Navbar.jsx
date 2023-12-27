@@ -4,8 +4,12 @@ import 'bootstrap/js/dist/dropdown'
 
 import 'bootstrap/js/dist/collapse'
 import {Link} from "react-router-dom";
+import {useRecoilValue} from "recoil";
+import {nameAtom} from "../atom/LoginAtom";
 
 function Nav({Toggle}) {
+
+    const name = useRecoilValue(nameAtom);
 
     return (
         <nav className="navbar navbar-expand-sm navbar-dark bg-transparent">
@@ -25,7 +29,7 @@ function Nav({Toggle}) {
                             aria-haspopup="true"
                             aria-expanded="false"
                         >
-                            유저 이름
+                            {name}
                         </a>
                         <div className="dropdown-menu dropdown-menu-lg-end" aria-labelledby="dropdownId">
                             <Link className="dropdown-item" to="/profile">

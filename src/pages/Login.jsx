@@ -279,7 +279,7 @@ function Login() {
         "POST",
         request
       );
-      // if (response) navigate("/");
+      if (response) navigate("/");
     } catch (error) {
       console.error(error);
     }
@@ -392,10 +392,10 @@ function Login() {
           </ModalButton>
         </ButtonsContainer>
         <Form>
-          <Label htmlFor="userId">아이디</Label>
+          <Label htmlFor="email">이메일</Label>
           <Input
             type="text"
-            id="userId"
+            id="email"
             required
             minLength={4}
             onChange={onChangeHandler}
