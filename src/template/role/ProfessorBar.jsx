@@ -26,6 +26,13 @@ function StudentComponent() {
                 <div className="collapse" id="applicationMenu">
                     <Link to="/professor/accept" className='list-group-item py-2'>수강 승인</Link>
                 </div>
+                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#applicationMenu" role="button"
+                   aria-expanded="false" aria-controls="applicationMenu">
+                    <i className='bi bi-cart-check-fill fs-5 me-3'></i> <span>수강 승인</span>
+                </a>
+                <div className="collapse" id="applicationMenu">
+                    <Link to="/accept" className='list-group-item py-2'>수강 승인</Link>
+                </div>
                 <a className='list-group-item py-2' data-bs-toggle="collapse" href="#gradeMenu" role="button"
                    aria-expanded="false" aria-controls="gradeMenu">
                     <i className='bi bi-file-text-fill fs-5 me-3'></i> <span>성적 서비스</span>

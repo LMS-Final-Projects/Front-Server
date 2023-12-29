@@ -25,6 +25,13 @@ function StudentBar() {
                 <div className="collapse" id="applicationMenu">
                     <Link to="/student/application" className='list-group-item py-2'>수강 신청</Link>
                 </div>
+                <a className='list-group-item py-2' data-bs-toggle="collapse" href="#applicationMenu" role="button"
+                   aria-expanded="false" aria-controls="applicationMenu">
+                    <i className='bi bi-cart-check-fill fs-5 me-3'></i> <span>수강 신청</span>
+                </a>
+                <div className="collapse" id="applicationMenu">
+                    <Link to="/application" className='list-group-item py-2'>수강 신청</Link>
+                </div>
                 <a className='list-group-item py-2' data-bs-toggle="collapse" href="#gradeMenu" role="button"
                    aria-expanded="false" aria-controls="gradeMenu">
                     <i className='bi bi-file-text-fill fs-5 me-3'></i> <span>성적 서비스</span>
