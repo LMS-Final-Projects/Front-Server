@@ -3,16 +3,11 @@ import axios from 'axios';
 axios.defaults.baseURL = 'http://localhost:8000';
 
 export const api = async (url, method, data) => {
-    const headers = {
-        'member-id': ''
-    };
-
     const body = await axios({
         url,
         method,
         data,
         withCredentials: true,
-        headers: headers
     });
     return body.data;
 };

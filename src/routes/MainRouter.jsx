@@ -18,6 +18,9 @@ import ModifyNotice from "../pages/notice/ModifyNotice";
 import ApplyLecture from "../pages/lecture/ApplyLecture";
 import AcceptLecture from "../pages/lecture/AcceptLecture";
 import RegistrationForm from "../pages/myService/RegistrationForm";
+import GetProfessorGrade from "../pages/grade/GetProfessorGrade";
+import Application from "../pages/application/Application";
+import Accept from "../pages/application/Accept";
 
 function MainRouter({ Toggle,Role }) {
     return (
@@ -35,9 +38,8 @@ function MainRouter({ Toggle,Role }) {
                         <Route path="post" element={<WatchPost/>}/>
                         <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />} />
-                        <Route path="grade/*">
-                            <Route path="get" element={<GetStudentGrade />} />
-                        </Route>
+                        <Route path="application" element={<Application />}/>
+                        <Route path="grade" element={<GetStudentGrade />} />
                     </Route>
                     }
                     {Role = "PROFESSOR" && <Route path="/professor/*" >
@@ -52,9 +54,8 @@ function MainRouter({ Toggle,Role }) {
                         <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />} />
                         <Route path="notice/watchNotice/:noticeId" element={<WatchNoticeDetails/>} />
-                        <Route path="grade/*">
-                            <Route path="get" element={<GetStudentGrade />} />
-                        </Route>
+                        <Route path="accept" element={<Accept />}/>
+                        <Route path="grade/:type" element={<GetProfessorGrade />}/>
                     </Route>
                     }
                     {Role = "ADMIN" && <Route path="/admin/*" >

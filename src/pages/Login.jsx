@@ -393,13 +393,29 @@ function Login() {
         </ButtonsContainer>
         <Form>
           <Label htmlFor="email">이메일</Label>
-          <Input
-            type="text"
-            id="email"
-            required
-            minLength={4}
-            onChange={onChangeHandler}
-          />
+          <TextContainer>
+            <Input
+                type="email"
+                id="email"
+                $emailInput="true"
+                required
+                minLength={4}
+                onChange={onChangeHandler}
+            />
+            <AuthButton onClick={getVerificationNumber}>인증 요청</AuthButton>
+          </TextContainer>
+          <Label htmlFor="verificationNumber">인증번호</Label>
+          <TextContainer>
+            <Input
+                type="text"
+                id="verificationNumber"
+                $emailInput="true"
+                required
+                minLength={4}
+                onChange={onChangeHandler}
+            />
+            <AuthButton onClick={postVerificationNumber}>인증 하기</AuthButton>
+          </TextContainer>
           <Label htmlFor="password">비밀번호</Label>
           <Input
             type="password"
@@ -446,30 +462,6 @@ function Login() {
           <InputContainer>
             <AuthButton onClick={getMajors}>전공 조회</AuthButton>
           </InputContainer>
-          <Label htmlFor="email">이메일</Label>
-          <TextContainer>
-          <Input
-            type="email"
-            id="email"
-            $emailInput="true"
-            required
-            minLength={4}
-            onChange={onChangeHandler}
-          />
-            <AuthButton onClick={getVerificationNumber}>인증 요청</AuthButton>
-          </TextContainer>
-          <Label htmlFor="verificationNumber">인증번호</Label>
-          <TextContainer>
-          <Input
-            type="text"
-            id="verificationNumber"
-            $emailInput="true"
-            required
-            minLength={4}
-            onChange={onChangeHandler}
-          />
-            <AuthButton onClick={postVerificationNumber}>인증 하기</AuthButton>
-          </TextContainer>
           <Label htmlFor="phNumber">전화번호</Label>
           <Input type="text" id="phNumber" onChange={onChangeHandler} />
           <Button onClick={signUp}>가입하기</Button>
