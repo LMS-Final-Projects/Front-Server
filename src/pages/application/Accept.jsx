@@ -92,6 +92,7 @@ const Accept = () => {
 
     return (
         <div className={"_right-content"}>
+            <div className="bg-dark text-white p-2 mb-4">승인 서비스</div>
             <GradeReportContainer>
                 <h2>신청 목록</h2>
                 <Table>

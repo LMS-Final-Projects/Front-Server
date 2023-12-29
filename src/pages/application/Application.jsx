@@ -108,6 +108,7 @@ const Application = () => {
 
     return (
         <div className={"_right-content"}>
+            <div className="bg-dark text-white p-2 mb-4">강의 신청</div>
             <GradeReportContainer>
                 <h2>강의 목록</h2>
                 <Table>

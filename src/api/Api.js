@@ -7,7 +7,7 @@ export const api = async (url, method, data) => {
         url,
         method,
         data,
-        withCredentials: true
+        withCredentials: true,
     });
     return body.data;
 };
@@ -28,6 +28,7 @@ export const exceptionApi = async (url, method, data) => {
     return body.data;
 };
 
+
 axios.interceptors.response.use(
     (response) => {
         return response;
@@ -42,7 +43,7 @@ axios.interceptors.response.use(
 
 const handle401Error = (error) => {
     if (error.response.data === "Unauthorized: Expired JWT token") {
-        window.location.href = '/reissue';
+        window.location.href = '/reissue ';
     } else {
         window.location.href = '/';
     }
