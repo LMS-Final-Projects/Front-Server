@@ -1,35 +1,45 @@
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {useRecoilValue} from "recoil";
-import {idAtom, roleAtom} from "../../atom/LoginAtom";
-import {api} from "../../api/Api";
-
+import { idAtom, roleAtom } from "../../atom/LoginAtom";
+import { useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { api } from "../../api/Api";
 
 const Timetable = () => {
-
-  const [weeklyData,setWeeklyData] = useState();
-  const memberId = useRecoilValue(idAtom);
+  const [schedule, setSchedule] = useState([]);
+  const [lecture, setLecture] = useState([]);
+  const [lectureId, setLectureId] = useState([]);
+  const id = useRecoilValue(idAtom);
   const role = useRecoilValue(roleAtom);
-  const [timeTables, setNotices] = useState();
-
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchTable = async () => {
       try {
-        const response = await api(`api/v1/schedule/${memberId}`, 'GET');
-        setWeeklyData(response.data);
-        console.log(response.data);
+        // id가 정의되어 있을 때에만 API 호출
+        if (id !== undefined) {
+          console.log(id);
+          const response = await api(`api/v1/schedule/${id}`, "GET");
+          setSchedule(response.data.weekday);
+          setLectureId(response.data.weekday.lectureId);
+          console.log(response.data);
+
+          // 여기서 추가 비동기 호출 수행
+          const lectureResponse = await api(
+              `api/v1/schedule/lecture/${response.data.weekday.lectureId}`,
+              "GET");
+          console.log(lectureResponse.data);
+          setLecture(lectureResponse.data);
+        }
       } catch (error) {
-        alert('Error fetching notices:', error);
+        console.error("Error fetching schedule:", error);
+        // Use console.error instead of alert for better debugging
       }
     };
 
     fetchTable();
-  }, []);
+  }, [id]); // id가 변경될 때마다 useEffect가 다시 실행되도록 의존성 배열에 추가
 
-  const handleCourseClick = async (id) => {
+  const handleCourseClick = (id) => {
     try {
       if (role === "PROFESSOR") {
         navigate(`/professor/myService/myLecture/watchClass/${id}`);
@@ -41,55 +51,51 @@ const Timetable = () => {
     }
   };
 
-
   const daysOfWeek = ["월요일", "화요일", "수요일", "목요일", "금요일"];
 
   return (
-    <>
-      <div className="bg-dark text-white p-2 mb-4">
-        강의 시간표
-      </div>
-      <div className="container">
-        <div className="timetable-img text-center"></div>
-        <div className="table-responsive">
-          <table className="table table-bordered text-center">
-            <thead>
-            <tr className="bg-light-gray">
-              <th className="text-uppercase">교시</th>
-              {daysOfWeek.map((day, index) => (
-                  <th key={index} className="text-uppercase">
-                    {day}
-                  </th>
-              ))}
-            </tr>
-            </thead>
-            <tbody>
-            {weeklyData && weeklyData.map((course) => (
-                <tr key={course.id}>
-                  <td>
-                    <div style={{ cursor: 'pointer' }} onClick={() => handleCourseClick(course.lectureId)}>
-                      {course.lectureName}
-                    </div>
-                  </td>
-                  {daysOfWeek.map((day, index) => (
-                      <td key={index}>
-                        {/*
-                  여기에 강의가 해당 요일, 해당 교시에 있는지 여부에 따라 내용을 표시
-                  예: {course[day] && course[day].includes(course.lectureName) ? "강의 있음" : "강의 없음"}
-                */}
-                      </td>
+      <>
+        <div className="bg-dark text-white p-2 mb-4">강의 시간표</div>
+        <div className="container">
+          <div className="timetable-img text-center"></div>
+          <div className="table-responsive">
+            <table className="table table-bordered text-center">
+              <thead>
+              <tr className="bg-light-gray">
+                <th className="text-uppercase">교시</th>
+                {daysOfWeek.map((day, index) => (
+                    <th key={index} className="text-uppercase">
+                      {day}
+                    </th>
+                ))}
+              </tr>
+              </thead>
+              <tbody>
+              {schedule &&
+                  schedule.map((weekday) => (
+                      <tr key={weekday.id}>
+                        <td>
+                          <div
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleCourseClick(weekday.lectureId)}
+                          >
+                            {"강의 이름"}
+                          </div>
+                        </td>
+                        {daysOfWeek.map((day, index) => (
+                            <td key={index}>
+                              {weekday.dayOfWeek &&
+                                  weekday.dayOfWeek === day}
+                            </td>
+                        ))}
+                        <td>{"교수 이름"}</td>
+                      </tr>
                   ))}
-                  <td>{course.professorName}</td>
-                  <td>{course.score}</td>
-                  <td>{course.maximumNumber}</td>
-                </tr>
-            ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-    </>
+      </>
   );
 };
 

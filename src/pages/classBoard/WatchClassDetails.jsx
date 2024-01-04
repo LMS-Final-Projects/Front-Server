@@ -177,13 +177,12 @@ function WatchClassDetails () {
 
 
     if (!classDetails) {
-
         return <div>Loading...</div>;
     }
 
     return (
         <>
-            <div className= "bg-dark text-white p-2 mb-4">제목: {classDetails.title}</div>
+            <div className= "bg-dark text-white p-2 mb-4">강의 제목: {classDetails.title}</div>
             <div className= "bg-dark text-white p-2 mb-4">내용: {classDetails.content}</div>
             <div className=  "bg-white rounded mt-4 p-4">
                 <ClassFileUpload classDetails={classDetails} files={files} setFiles={setFiles}/>

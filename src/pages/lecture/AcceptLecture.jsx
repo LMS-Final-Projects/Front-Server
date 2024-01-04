@@ -24,9 +24,9 @@ const AcceptLecture = () => {
         const response = await api(`/api/v1/manager/lectures/holding`, 'GET');
 
         try{
-        if (response.data.errorMsg === '') {
+        if (response.code === 'OK') {
             alert('강의 조회 성공!');
-            setLectures(response.data.data);
+            setLectures(response.data);
 
         } else {
             alert('강의 조회 실패:', response.statusText);
@@ -38,7 +38,7 @@ const AcceptLecture = () => {
 
     const handleDenySelectedLectures = async () => {
         try {
-            const response = await api('api/v1/lecture/cancelLecture', 'POST', { lectureIds: selectedLectures.map(lecture => lecture.id) });
+            const response = await api('/api/v1/manager/lectures/deny', 'POST', { lectureIds: selectedLectures.map(lecture => lecture.id) });
 
             console.log(response.data)
             if (response.data.errorMsg === '') {
@@ -67,23 +67,16 @@ const AcceptLecture = () => {
         e.preventDefault();
 
         const AdminLectureRequest = {
-            lectureName: lectureName,
-            professorId: id,
-            lectureComment: lectureComment,
-            maximumNumber: maximumNumber,
-            score: score,
-            semester: semester,
-            professorName: professorName,
-            lectureDate: lectureDate
+            lectureIds: selectedLectures.map((lecture) => lecture.id),
+            memberId: id
         };
-
 
         try {
             // 강의 등록 API 호출
-            const response = await api(`/api/v1/lecture/registration`, 'POST', AdminLectureRequest);
+            const response = await api(`/api/v1/manager/lectures/registration`, 'POST', AdminLectureRequest);
 
             // API 응답 처리
-            if (response.data.errorMsg === '') {
+            if (response.code === 'OK') {
                 alert('강의 승인 성공!');
             } else {
                 alert('강의 승인 실패:', response.statusText);
@@ -102,9 +95,12 @@ const AcceptLecture = () => {
                         <thead className="thead-dark">
                         <tr>
                             <th scope="col">강의코드</th>
+                            <th scope="col">년도</th>
                             <th scope="col">학기</th>
                             <th scope="col">강의 이름</th>
                             <th scope="col">교수 이름</th>
+                            <th scope="col">요일</th>
+                            <th scope="col">시작 시간</th>
                             <th scope="col">최대 인원</th>
                             <th scope="col">학점</th>
                             <th scope="col">강의 설명</th>
@@ -113,12 +109,15 @@ const AcceptLecture = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {lectures.map((lecture) => (
+                        {lectures && lectures.map((lecture) => (
                             <tr key={lecture.id}>
                                 <td>{lecture.id}</td>
+                                <td>{lecture.year}</td>
                                 <td>{lecture.semester}</td>
                                 <td>{lecture.lectureName}</td>
                                 <td>{lecture.professorName}</td>
+                                <td>{lecture.dayOfWeek}</td>
+                                <td>{lecture.startTime}</td>
                                 <td>{lecture.maximumNumber}</td>
                                 <td>{lecture.score}</td>
                                 <td>{lecture.lectureComment}</td>

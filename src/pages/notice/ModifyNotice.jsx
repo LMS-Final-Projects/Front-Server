@@ -150,7 +150,7 @@ const ModifyNotice = ({ files, setFiles }, location) => {
                     </form>
                 </div>
             )}
-            <FileUploadModal isOpen={modalIsOpen} onRequestClose={closeModal} onRequestUpload={handleUpload} onRequestChange={handleFileChange()}>
+            <FileUploadModal isOpen={modalIsOpen} onRequestClose={closeModal} onRequestUpload={handleUpload} onRequestChange={() => handleFileChange()}>
             </FileUploadModal>
         </div>
     );

@@ -8,8 +8,13 @@ import {idAtom, roleAtom} from "../../atom/LoginAtom";
 const ApplyLecture = () => {
     const [lectureName, setLectureName] = useState('');
     const [score, setScore] = useState('');
-    const [semester, setSemester] = useState("FIRST");
+    const [semester, setSemester] = useState('');
     const [maximumNumber, setMaximumNumber] = useState('');
+    const [professorName, setProfessorName] = useState('');
+    const [majorName, setMajorName] = useState('');
+    const [startTime, setStartTime] = useState('');
+    const [year, setYear] = useState('');
+    const [dayOfWeek, setDayOfWeek] = useState('');
     const [lectureComment, setLectureComment] = useState('');
     const [selectedLectures, setSelectedLectures] = useState([]);
     const [lectures, setLectures] = useState([]);
@@ -23,7 +28,7 @@ const ApplyLecture = () => {
         try{
         if (response.data.errorMsg === '') {
             alert('강의 조회 성공!');
-            setLectures(response.data.data);
+            setLectures(response.data);
 
         } else {
             alert('강의 조회 실패:', response.statusText);
@@ -65,21 +70,23 @@ const ApplyLecture = () => {
 
         const LectureRequest = {
             lectureName: lectureName,
-            professorId: id,
-            majorId: "", //전체 전공 조회에서 이름으로 고르기.
+            professorName: professorName,
+            majorName: majorName,
             lectureComment: lectureComment,
             maximumNumber: maximumNumber,
             score: score,
-            semester: semester
+            semester: semester,
+            dayOfWeek: dayOfWeek,
+            startTime: startTime,
+            year: year
         };
-
 
         try {
             // 강의 등록 API 호출
-            const response = await api(`/api/v1/lecture/requestLecture`, 'POST', LectureRequest);
+            const response = await api(`/api/v1/lectures`, 'POST', LectureRequest);
 
             // API 응답 처리
-            if (response.data.errorMsg === '') {
+            if (response.data.code === '') {
                 alert('강의 등록 성공!');
             } else {
                 alert('강의 등록 실패:', response.statusText);

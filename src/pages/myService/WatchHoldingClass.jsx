@@ -2,35 +2,55 @@ import React, {useEffect, useState} from "react";
 import {Link, useNavigate} from 'react-router-dom';
 import {useRecoilValue} from "recoil";
 import {api} from "../../api/Api";
-import {idAtom, roleAtom} from "../../atom/LoginAtom";
+import {idAtom, nameAtom, roleAtom} from "../../atom/LoginAtom";
 
-function WatchHoldingCourse() {
+function WatchHoldingClass() {
     const id = useRecoilValue(idAtom);
     const role = useRecoilValue(roleAtom);
+    const name = useRecoilValue(nameAtom);
     const [courses, setCourses] = useState([]);
+    const [holdings, setHoldings] = useState([]);
     const [selectedCourses, setSelectedCourses] = useState([]);
+    const [selectedHoldings, setSelectedHoldings] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCourse = async () => {
-            const customHeaders = {
-                'member-id': id
-            };
+        const fetchData = async () => {
             try {
-                const response = await api('api/v1/manager/application', 'GET',null,customHeaders);
-                setCourses(response.data);
-                console.log(response.data); // 최신 데이터를 출력
+                if (role === "STUDENT") {
+                    const customHeaders = {
+                        'member-id': id,
+                        'name': name,
+                        'role': role,
+                    };
+
+
+                    const response1 = await api('api/v1/manager/application', 'GET', null, customHeaders);
+                    setCourses(response1.data);
+
+
+
+                    console.log(response1.data);
+                } else if (role === "PROFESSOR") {
+
+                    const response2 = await api(`api/v1/lectures/${id}`, 'GET');
+
+                    setHoldings(response2.data);
+
+                    console.log(response2.data);
+                }
             } catch (error) {
+
                 alert('Error fetching courses:', error);
             }
         };
 
-        fetchCourse();
-    }, []);
+        fetchData();
+    }, [role, id, name]);
 
     const handleCourseDetails = async (id) => {
         try {
-            const response = await api(`api/v1/courses/${id}`, 'GET');
+            const response = await api(`api/v1/board/${id}`, 'GET');
             if (response.errorMsg === '') {
                 alert('공지사항 호출 성공!');
             } else {
@@ -41,12 +61,22 @@ function WatchHoldingCourse() {
         }
     }
 
-    const handleCheckboxChange = (event, coureseObj) => {
+    const handleCheckboxChange2 = (event, holdingObj) => {
         if (event.target.checked) {
-            setSelectedCourses(prevSelected => [...prevSelected, coureseObj]);
+            setSelectedHoldings(prevSelected => [...prevSelected, holdingObj]);
             console.log(selectedCourses);
         } else {
-            setSelectedCourses(prevSelected => prevSelected.filter(selectedCourse => selectedCourse.id !== coureseObj.id));
+            setSelectedHoldings(prevSelected => prevSelected.filter(selectedHolding => selectedHolding.id !== holdingObj.id));
+            console.log(selectedCourses);
+        }
+    }
+
+    const handleCheckboxChange = (event, courseObj) => {
+        if (event.target.checked) {
+            setSelectedCourses(prevSelected => [...prevSelected, courseObj]);
+            console.log(selectedCourses);
+        } else {
+            setSelectedCourses(prevSelected => prevSelected.filter(selectedCourse => selectedCourse.id !== courseObj.id));
             console.log(selectedCourses);
         }
     }
@@ -57,24 +87,24 @@ function WatchHoldingCourse() {
             // 여기에서 선택된 클래스들을 삭제하는 로직을 수행해야 합니다.
             const response = await api('api/v1/application/delete', 'POST', { courseIds });
             if (response.errorMsg === '') {
-                alert('공지 삭제 성공!');
+                alert('강의 삭제 성공!');
             } else {
-                alert('공지 삭제 실패:', response.statusText);
+                alert('강의 삭제 실패:', response.statusText);
             }
         } catch (error) {
             alert('Error deleting courses:', error);
         }
     };
 
-    const handleDeleteSelectedCourses2 = async () => {
+    const handleDeleteSelectedHoldings = async () => {
         try {
-            const lectureIds = selectedCourses.map(selectedCourse => selectedCourse.id);
+            const lectureIds = selectedHoldings.map(selectedHolding => selectedHolding.id);
             // 여기에서 선택된 클래스들을 삭제하는 로직을 수행해야 합니다.
             const response = await api('api/v1/lectures/delete', 'POST', { lectureIds });
             if (response.errorMsg === '') {
-                alert('공지 삭제 성공!');
+                alert('강의 삭제 성공!');
             } else {
-                alert('공지 삭제 실패:', response.statusText);
+                alert('강의 삭제 실패:', response.statusText);
             }
         } catch (error) {
             alert('Error deleting courses:', error);
@@ -94,6 +124,7 @@ function WatchHoldingCourse() {
 
     return (
         <div>
+
             {role === 'PROFESSOR' && (
                 <div>
                     <div className="bg-dark text-white p-2 mb-4">
@@ -111,17 +142,17 @@ function WatchHoldingCourse() {
                             </tr>
                             </thead>
                             <tbody>
-                            {courses.map((course) => (
-                                <tr key={course.id}>
-                                    <td>{course.lectureName}</td>
-                                    <td>{course.professorName}</td>
-                                    <td>{course.score}</td>
+                            {holdings && holdings.map((holding) => (
+                                <tr key={holding.id}>
+                                    <td>{holding.lectureName}</td>
+                                    <td>{holding.professorName}</td>
+                                    <td>{holding.score}</td>
                                     <td>대기중</td>
                                     <td>
                                         <input
                                             type="checkbox"
-                                            onChange={(event) => handleCheckboxChange(event, course)}
-                                            checked={selectedCourses.some(selectedCourse => selectedCourse.id === course.id)}
+                                            onChange={(event) => handleCheckboxChange2(event, holding)}
+                                            checked={selectedHoldings.some(selectedHolding => selectedHolding.id === holding.id)}
                                         />
                                     </td>
                                 </tr>
@@ -135,7 +166,7 @@ function WatchHoldingCourse() {
                                     강의 등록
                                 </button>
                             </Link>
-                            <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedCourses2}>
+                            <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedHoldings}>
                                 취소
                             </button>
                         </div>
@@ -160,7 +191,7 @@ function WatchHoldingCourse() {
                             </tr>
                             </thead>
                             <tbody>
-                            {courses.map((course) => (
+                            {courses && courses.map((course) => (
                                 <tr key={course.id}>
                                     <td>{course.lectureName}</td>
                                     <td>{course.professorName}</td>
@@ -198,4 +229,4 @@ function WatchHoldingCourse() {
     )
 }
 
-export default WatchHoldingCourse;
+export default WatchHoldingClass;

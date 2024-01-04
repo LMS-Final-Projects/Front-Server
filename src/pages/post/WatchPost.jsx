@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 
 import styled from "styled-components";
 import { useRecoilValue } from "recoil";
-import {idAtom, roleAtom} from "../../atom/LoginAtom";
-import {api} from "../../api/Api";
+import {emailAtom, idAtom, nameAtom, roleAtom} from "../../atom/LoginAtom";
+import {api, exceptionApi} from "../../api/Api";
 import {Link} from "react-router-dom";
+import {v4 as uuidv4} from "uuid";
 
 
 const StyledButton = styled.button`
@@ -22,46 +23,57 @@ const StyledButton = styled.button`
     }
   `;
 const WatchPost = () => {
-  const [mails, setMails] = useState([]);
-  const [selectedMails, setSelectedMails] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [selectedPosts, setSelectedPosts] = useState([]);
+  const email = useRecoilValue(emailAtom);
   const role = useRecoilValue(roleAtom);
   const id = useRecoilValue(idAtom);
+  const name = useRecoilValue(nameAtom);
+  const [lectures, setLectures] = useState([]);
 
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const lectureName = await api(`api/v1/mail/lectureName`, `GET`);
 
-        const watchRequest = {
-          receiverId: id,
-          lectureName: lectureName,
+        const customHeaders = {
+          'member-id': id,
+          'name': name,
+          'role': role
+        };
+        const response = await api('api/v1/application/accept', 'GET', null, customHeaders);
+        setLectures(response.data);
+        console.log(response.data); // 최신 데이터를 출력
+
+        const getRequest = {
+          userEmail: email,
+          lectureIds: '',
         };
 
-        const response = await api("api/v1/mail/getAll", "POST", watchRequest);
-        setMails(response.data.data);
+        const response2 = await api("api/v1/post/getAll", "POST",getRequest);
+        setPosts(response2.data);
       } catch (error) {
-        alert("Error fetching user and mails:", error);
+        alert("Error fetching user and posts:", error);
       }
     };
 
     fetchUser();
   }, []);
 
-  const handleCheckboxChange = (event, mail) => {
+  const handleCheckboxChange = (event, post) => {
     if (event.target.checked) {
-      setSelectedMails((prevSelected) => [...prevSelected, mail]);
+      setSelectedPosts((prevSelected) => [...prevSelected, post]);
     } else {
-      setSelectedMails((prevSelected) =>
-        prevSelected.filter((selectedMail) => selectedMail.id !== mail.id)
+      setSelectedPosts((prevSelected) =>
+        prevSelected.filter((selectedPost) => selectedPost.id !== post.id)
       );
     }
   };
 
-  const handleDeleteSelectedMails = async () => {
+  const handleDeleteSelectedPosts = async () => {
     try {
-      const response = await api("api/v1/mail/deleteMails", "POST", {
-        mailIds: selectedMails.map((mail) => mail.id),
+      const response = await api("api/v1/post/deletePosts", "POST", {
+        postIds: selectedPosts.map((mail) => mail.id),
       });
       console.log(response.data);
       if (response.data.errorMsg === "") {
@@ -70,11 +82,11 @@ const WatchPost = () => {
         alert("메일 삭제 실패:", response.statusText);
       }
     } catch (error) {
-      alert("Error deleting mails:", error);
+      alert("Error deleting posts:", error);
     }
   };
 
-  console.log(mails);
+  console.log(posts);
 
   return (
     <>
@@ -93,17 +105,17 @@ const WatchPost = () => {
               </tr>
               </thead>
               <tbody>
-              {mails.map((mail) => (
-                  <tr key={mail.id}>
-                    <td>{mail.senderEmail}</td>
-                    <td>{mail.sendTime}</td>
-                    <td>{mail.title}</td>
+              {posts.map((post) => (
+                  <tr key={post.id}>
+                    <td>{post.senderEmail}</td>
+                    <td>{post.sendTime}</td>
+                    <td>{post.title}</td>
                     <td>
                       <input
                           type="checkbox"
-                          onChange={(event) => handleCheckboxChange(event, mail)}
-                          checked={selectedMails.some(
-                              (selectedMail) => selectedMail.id === mail.id
+                          onChange={(event) => handleCheckboxChange(event, post)}
+                          checked={selectedPosts.some(
+                              (selectedPost) => selectedPost.id === post.id
                           )}
                       />
                     </td>
@@ -117,7 +129,7 @@ const WatchPost = () => {
                   쪽지 쓰기
                 </button>
               </Link>
-              <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedMails}>
+              <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedPosts}>
                 삭제
               </button>
             </div>
@@ -135,17 +147,17 @@ const WatchPost = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {mails.map((mail) => (
-                    <tr key={mail.id}>
-                      <td>{mail.senderEmail}</td>
-                      <td>{mail.sendTime}</td>
-                      <td>{mail.title}</td>
+                {posts.map((post) => (
+                    <tr key={post.id}>
+                      <td>{post.senderEmail}</td>
+                      <td>{post.sendTime}</td>
+                      <td>{post.title}</td>
                       <td>
                         <input
                             type="checkbox"
-                            onChange={(event) => handleCheckboxChange(event, mail)}
-                            checked={selectedMails.some(
-                                (selectedMail) => selectedMail.id === mail.id
+                            onChange={(event) => handleCheckboxChange(event, post)}
+                            checked={selectedPosts.some(
+                                (selectedPost) => selectedPost.id === post.id
                             )}
                         />
                       </td>
@@ -159,7 +171,7 @@ const WatchPost = () => {
                     쪽지 쓰기
                   </button>
                 </Link>
-                <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedMails}>
+                <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedPosts}>
                   삭제
                 </button>
               </div>
@@ -178,17 +190,17 @@ const WatchPost = () => {
               </tr>
               </thead>
               <tbody>
-              {mails.map((mail) => (
-                  <tr key={mail.id}>
-                    <td>{mail.senderEmail}</td>
-                    <td>{mail.sendTime}</td>
-                    <td>{mail.title}</td>
-                    <td>{mail.message}</td>
+              {posts.map((post) => (
+                  <tr key={post.id}>
+                    <td>{post.senderEmail}</td>
+                    <td>{post.sendTime}</td>
+                    <td>{post.title}</td>
+                    <td>{post.message}</td>
                     <td>
                       <input
                           type="checkbox"
-                          onChange={(event) => handleCheckboxChange(event, mail)}
-                          checked={selectedMails.some((selectedMail) => selectedMail.id === mail.id)}
+                          onChange={(event) => handleCheckboxChange(event, post)}
+                          checked={selectedPosts.some((selectedPost) => selectedPost.id === post.id)}
                       />
                     </td>
                   </tr>
@@ -201,7 +213,7 @@ const WatchPost = () => {
                   쪽지 쓰기
                 </button>
               </Link>
-              <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedMails}>
+              <button className="btn btn-primary" type="submit" onClick={handleDeleteSelectedPosts}>
                 삭제
               </button>
             </div>

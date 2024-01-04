@@ -27,7 +27,7 @@ const FileUploadModal = ({ isOpen,onRequestClose, files, onRequestUpload, onRequ
             </div>
             <form encType="multipart/form-data">
                 <div className="d-flex justify-content-between">
-                <input type="file" name="file" onChange={handleFileChange} />
+                <input type="file" name="file" onChange={(e) => handleFileChange(e.target.value)} />
                 <button type="button" className="btn btn-primary" onClick={handleUpload}>
                     확인
                 </button>
