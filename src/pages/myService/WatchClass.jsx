@@ -2,39 +2,49 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from "recoil";
 import { api } from "../../api/Api";
-import {idAtom, roleAtom} from "../../atom/LoginAtom";
+import {idAtom, nameAtom, roleAtom} from "../../atom/LoginAtom";
 
-function WatchCourse() {
+function WatchClass() {
     const id = useRecoilValue(idAtom);
     const role = useRecoilValue(roleAtom);
+    const name = useRecoilValue(nameAtom);
     const [courses, setCourses] = useState([]);
     const [selectedCourse, setSelectedCourses] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCourse = async () => {
+
             try {
+
                 const customHeaders = {
-                    'member-id': id
+                    "member-id" : id,
+                    "role" : role,
+                    "name" : name
                 };
+                console.log(id)
+                console.log(role)
+                console.log(name)
                 const response = await api('api/v1/application/accept', 'GET', null, customHeaders);
                 setCourses(response.data);
-                console.log(response.data); // 최신 데이터를 출력
+                console.log(response.data);
             } catch (error) {
                 alert('Error fetching courses:', error);
             }
         };
 
-        fetchCourse();
-    }, []);
+        if (id && role && name) {
+            fetchCourse();
+        }
+    }, [id,role,name]);
 
-    const handleCourseDetails = async (id) => {
+    const handleCourseDetails = async (lectureId) => {
         try {
-            const response = await api(`api/v1/courses/${id}`, 'GET');
+            const response = await api(`api/v1/classes/${lectureId}`, 'GET');
             if (response.errorMsg === '') {
-                alert('공지사항 호출 성공!');
+                alert('강의 호출 성공!');
             } else {
-                alert('공지사항 호출 실패:', response.statusText);
+                alert('강의 호출 실패:', response.statusText);
             }
         } catch (error) {
             alert('Error Watching WatchCourse:', error);
@@ -42,10 +52,10 @@ function WatchCourse() {
     }
 
 
-    const handleTitleClick = async (id) => {
+    const handleTitleClick = async (lectureId) => {
         try {
-            navigate(`/courese/watchCourse/details/${id}`);
-            await handleCourseDetails(id);
+            navigate(`/student/myService/myLecture/watchClass/${lectureId}`);
+            await handleCourseDetails(lectureId);
         } catch (error) {
             console.error('Error handling title click:', error);
         }
@@ -59,6 +69,34 @@ function WatchCourse() {
                 </div>
                 {role ===  'PROFESSOR' && (
                     <div className="bg-white rounded mt-4 p-4">
+                        <table className="table">
+                            <thead className="thead-dark">
+                            <tr>
+                                <th scope="col">강의 이름</th>
+                                <th scope="col">강의 요일</th>
+                                <th scope="col">강의 시간</th>
+                                <th scope="col">교수 이름</th>
+                                <th scope="col">학점</th>
+                                <th scope="col">정원</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {courses.map((course) => (
+                                <tr key={course.id}>
+                                    <td>
+                                        <div style={{ cursor: 'pointer' }} onClick={() => handleTitleClick(course.lectureId)}>
+                                            {course.lectureName}
+                                        </div>
+                                    </td>
+                                    <td>수요일</td>
+                                    <td>1</td>
+                                    <td>{course.professorName}</td>
+                                    <td>{course.score}</td>
+                                    <td>{course.maximumNumber}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
 
@@ -102,4 +140,4 @@ function WatchCourse() {
     )
 }
 
-export default WatchCourse;
+export default WatchClass;

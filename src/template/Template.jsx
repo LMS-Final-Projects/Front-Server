@@ -23,10 +23,11 @@ const Template = () => {
             setId(response.data.id);
             setRole(response.data.role);
             setName(response.data.name)
-            setEmail(response.data.name);
+            setEmail(response.data.email);
             console.log(response);
             console.log(response.data.id);
             console.log(response.data.role);
+            console.log(response.data.name);
 
         } catch (error) {
             window.location.href = '/login';
@@ -35,7 +36,7 @@ const Template = () => {
 
     useEffect(() => {
         get();
-    }, []);
+    }, [toggle]);
 
     return (
         <>

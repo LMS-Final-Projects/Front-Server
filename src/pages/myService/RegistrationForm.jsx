@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import {exceptionApi} from "../../api/Api";
+import {api, exceptionApi} from "../../api/Api";
 import {useRecoilValue} from "recoil";
-import {emailAtom, nameAtom} from "../../atom/LoginAtom";
+import {emailAtom, idAtom, nameAtom} from "../../atom/LoginAtom";
 import styled from "styled-components";
 
 const InputContainer = styled.div`
@@ -34,6 +34,7 @@ const AuthButton = styled.button`
 
 
 const RegistrationForm = () => {
+    const id = useRecoilValue(idAtom);
     const [majors, setMajors] = useState([]);
     const name = useRecoilValue(nameAtom);
     const email = useRecoilValue(emailAtom);
@@ -42,18 +43,19 @@ const RegistrationForm = () => {
     const [majorName, setMajorName] = useState('');
     const [lectureName, setLectureName] = useState('');
     const [lectureComment, setLectureComment] = useState('');
-    const [maximumNumber, setMaximumNumber] = useState(0);
+    const [maximumNumber, setMaximumNumber] = useState(10);
+    const [startTime, setStartTime] = useState(1);
     const [score, setScore] = useState(0);
     const [semester, setSemester] = useState('');
     const currentDate = new Date();
+    const [year, setYear] = useState('');
+    const [dayOfWeek, setDayOfWeek] = useState('');
     const [selectedMajor, setSelectedMajor] = useState('');
 
     const [form, SetForm] = useState({
-        name: name,
-        senderEmail: email,
-        receiverEmail: '',
-        content: '',
+
         upLoadTime: currentDate,
+        majorList: []
     });
 
     const handleMajorSelect = (e, major) => {
@@ -93,7 +95,7 @@ const RegistrationForm = () => {
     const getMajors = async (e) => {
         e.preventDefault();
         try {
-            const response = await exceptionApi("api/v1/professor/major");
+            const response = await api(`api/v1/professor/${id}`,`GET`);
             const majors = await response.data;
             console.log(response.data);
             setMajors(majors); // 전공 데이터 설정
@@ -103,12 +105,38 @@ const RegistrationForm = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // 여기에 서버로 데이터를 전송하는 로직을 추가하세요.
-        // axios 또는 fetch API를 사용하여 백엔드로 데이터를 전송할 수 있습니다.
+        const LectureRequest = {
+            professorId: id,
+            lectureName: lectureName,
+            professorName: name,
+            lectureComment: lectureComment,
+            maximumNumber: maximumNumber,
+            score: score,
+            semester: semester,
+            dayOfWeek: dayOfWeek,
+            startTime: startTime,
+            year: year,
+            majorNames: form.majorList.map(major => major.majorName)
+        };
+
+        try {
+            // 강의 등록 API 호출
+            const response = await api(`/api/v1/lectures`, 'POST', LectureRequest);
+
+            // API 응답 처리
+            if (response.code === "OK") {
+                alert('강의 등록 성공!');
+            } else {
+                alert('강의 등록 실패:', response.statusText);
+            }
+        } catch (error) {
+            alert('Error applying for lecture:', error);
+        }
     };
+
 
     return (
         <>
@@ -122,7 +150,8 @@ const RegistrationForm = () => {
                         type="text"
                         className="form-control"
                         id="professorName"
-                        value={form.name}
+                        value={name}
+                        onChange={(e) => setProfessorName(e.target.value)}
                         readOnly={true}
                     />
                 </div>
@@ -182,6 +211,42 @@ const RegistrationForm = () => {
                         required
                     ></textarea>
                 </div>
+
+                <div className="form-group mb-3">
+                    <label htmlFor="dayOfWeek">강의 요일</label>
+                    <select
+                        className="form-control"
+                        id="dayOfWeek"
+                        value={dayOfWeek}
+                        onChange={(e) => setDayOfWeek(e.target.value)}
+                        required
+                    >
+                        <option value="">요일 선택</option>
+                        <option value="MONDAY">월</option>
+                        <option value="TUESDAY">화</option>
+                        <option value="WEDNESDAY">수</option>
+                        <option value="THURSDAY">목</option>
+                        <option value="FRIDAY">금</option>
+                    </select>
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="startTime">강의 시작 교시</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="startTime"
+                        placeholder="시작 시간"
+                        value={startTime}
+                        onChange={(e) => {
+                            const enteredStartTime = parseFloat(e.target.value);
+                            if (!isNaN(enteredStartTime) && enteredStartTime >= 0 && enteredStartTime <= 7) {
+                                setStartTime(enteredStartTime);
+                            }
+                        }}
+                        required
+                    />
+                </div>
+
                 <div className="form-group mb-3">
                     <label htmlFor="maximumNumber">수강 정원</label>
                     <input
@@ -190,10 +255,18 @@ const RegistrationForm = () => {
                         id="maximumNumber"
                         placeholder="수강 정원"
                         value={maximumNumber}
-                        onChange={(e) => setMaximumNumber(e.target.value)}
+                        onChange={(e) => {
+                            const enteredMaximumNumber = parseFloat(e.target.value);
+
+                            if (!isNaN(enteredMaximumNumber) && enteredMaximumNumber >= 10 && enteredMaximumNumber <= 50) {
+
+                                setMaximumNumber(enteredMaximumNumber);
+                            }
+                        }}
                         required
                     />
                 </div>
+
                 <div className="form-group mb-3">
                     <label htmlFor="score">학점</label>
                     <input
@@ -202,7 +275,15 @@ const RegistrationForm = () => {
                         id="score"
                         placeholder="학점"
                         value={score}
-                        onChange={(e) => setScore(e.target.value)}
+                        onChange={(e) => {
+
+                            const enteredScore = parseFloat(e.target.value);
+
+                            if (!isNaN(enteredScore) && enteredScore >= 0 && enteredScore <= 4) {
+
+                                setScore(enteredScore);
+                            }
+                        }}
                         required
                     />
                 </div>
@@ -218,6 +299,19 @@ const RegistrationForm = () => {
                         <option value="">학기 선택</option>
                         <option value="FIRST">1학기</option>
                         <option value="SECOND">2학기</option>
+                    </select>
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="year">년도</label>
+                    <select
+                        className="form-control"
+                        id="year"
+                        value={year}
+                        onChange={(e) => setYear(e.target.value)}
+                        required
+                    >
+                        <option value="">년도 선택</option>
+                        <option value="2023">2023</option>
                     </select>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'end' }}>
