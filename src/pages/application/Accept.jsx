@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {api} from "../../api/Api";
 import styled from "styled-components";
+import {useRecoilValue} from "recoil";
+import {idAtom} from "../../atom/LoginAtom";
 
 const GradeReportContainer = styled.div`
   max-width: 800px;
@@ -60,7 +62,7 @@ const Button = styled.button`
 
 const Accept = () => {
     const [applications, setApplications] = useState([]);
-
+    const memberId = useRecoilValue(idAtom);
     const getApplication = async () => {
         const response = await api("/api/v1/manager/application","GET")
         setApplications(response.data);
@@ -69,12 +71,17 @@ const Accept = () => {
     }
 
     const accept = async (id) => {
+        const clickedItem = applications.find(item => item.id === id);
+        console.log(clickedItem);
+
         const request = {
-            "applicationId" : id
+            "applicationId" : id,
+            "lectureId" : clickedItem.lectureId,
+            "memberId": clickedItem.memberId
         }
-        alert("승인완료")
+        // alert("승인완료")
         const response = await api("/api/v1/manager/application/accepted","POST",request)
-        window.location.reload();
+        // window.location.reload();
     }
 
     const reject = async (id) => {

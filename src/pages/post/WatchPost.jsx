@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "styled-components";
-import { useRecoilValue } from "recoil";
+import {useRecoilCallback, useRecoilValue} from "recoil";
 import {emailAtom, idAtom, nameAtom, roleAtom} from "../../atom/LoginAtom";
-import {api, exceptionApi} from "../../api/Api";
+import {api, } from "../../api/Api";
 import {Link} from "react-router-dom";
-import {v4 as uuidv4} from "uuid";
 
 
 const StyledButton = styled.button`
@@ -25,16 +24,16 @@ const StyledButton = styled.button`
 const WatchPost = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPosts, setSelectedPosts] = useState([]);
-  const email = useRecoilValue(emailAtom);
   const role = useRecoilValue(roleAtom);
   const id = useRecoilValue(idAtom);
   const name = useRecoilValue(nameAtom);
   const [lectures, setLectures] = useState([]);
+  const email = useRecoilValue(emailAtom);
 
-
-  useEffect(() => {
-    const fetchUser = async () => {
+  const fetchUser = useRecoilCallback(({ snapshot }) => async () => {
       try {
+        const currentEmail = await snapshot.getPromise(emailAtom);
+        console.log(currentEmail)
 
         const customHeaders = {
           'member-id': id,
@@ -43,22 +42,24 @@ const WatchPost = () => {
         };
         const response = await api('api/v1/application/accept', 'GET', null, customHeaders);
         setLectures(response.data);
-        console.log(response.data); // 최신 데이터를 출력
+        console.log(response.data);
 
         const getRequest = {
-          userEmail: email,
+          userEmail: currentEmail,
           lectureIds: '',
         };
 
-        const response2 = await api("api/v1/post/getAll", "POST",getRequest);
+        const response2 = await api("api/v1/post/getAll", "POST", getRequest);
         setPosts(response2.data);
+
       } catch (error) {
         alert("Error fetching user and posts:", error);
       }
-    };
+    });
 
-    fetchUser();
-  }, []);
+    useEffect(() => {
+      fetchUser();
+    }, [fetchUser]);
 
   const handleCheckboxChange = (event, post) => {
     if (event.target.checked) {
@@ -76,7 +77,7 @@ const WatchPost = () => {
         postIds: selectedPosts.map((mail) => mail.id),
       });
       console.log(response.data);
-      if (response.data.errorMsg === "") {
+      if (response.code === "OK") {
         alert("메일 삭제 성공!");
       } else {
         alert("메일 삭제 실패:", response.statusText);

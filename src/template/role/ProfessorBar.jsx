@@ -39,14 +39,14 @@ function StudentComponent() {
                     <i className="bi bi-megaphone-fill fs-5 me-3"></i> <span>공지사항</span>
                 </a>
                 <div className="collapse" id="noticeMenu">
-                    <Link to ="professor/notice " className='list-group-item py-2' >공지사항 보기</Link>
+                    <Link to ="/professor/notice " className='list-group-item py-2' >공지사항 보기</Link>
                 </div>
                 <a className='list-group-item py-2' data-bs-toggle="collapse" href="#postService" role="button"
                    aria-expanded="false" aria-controls="postService">
                     <i className="bi bi-send-fill fs-5 me-3"></i> <span>쪽지 서비스</span>
                 </a>
                 <div className="collapse" id="postService">
-                    <Link to = "professor/post" className='list-group-item py-2' href="/">내 쪽지함</Link>
+                    <Link to = "/professor/post" className='list-group-item py-2'>내 쪽지함</Link>
                 </div>
             </div>
         </>

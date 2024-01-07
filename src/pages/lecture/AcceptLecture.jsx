@@ -40,8 +40,8 @@ const AcceptLecture = () => {
         try {
             const response = await api('/api/v1/manager/lectures/deny', 'POST', { lectureIds: selectedLectures.map(lecture => lecture.id) });
 
-            console.log(response.data)
-            if (response.data.errorMsg === '') {
+            console.log(response)
+            if (response.code === 'OK') {
                 alert('강의 요청 삭제 성공!');
             } else {
                 alert('강의 요청 삭제 실패:', response.statusText);

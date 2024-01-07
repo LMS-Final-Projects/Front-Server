@@ -1,16 +1,62 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { api } from '../../api/Api';
 import { useRecoilValue } from 'recoil';
-import { idAtom, roleAtom } from '../../atom/LoginAtom';
+import {emailAtom, idAtom, nameAtom, roleAtom} from '../../atom/LoginAtom';
 import FileUploadModal from "./FileUploadModal";
+import {useParams} from "react-router";
 
-const ModifyNotice = ({ files, setFiles }, location) => {
-    const noticeDetails  = location?.state?.noticeDetails || {};
+const ModifyNotice = ({ files, setFiles }) => {
+    const {noticeId} = useParams();
+    const [noticeDetails, setNoticeDetails] = useState('');
     const currentDate = new Date();
     const [modalIsOpen, setModalIsOpen] = useState(false);
+
+    const [formData, setFormData] = useState({
+        title: '',
+        upLoadTime: currentDate,
+        content: '',
+        fileUrl: '',
+    });
+
     const [file, setFile] = useState(null);
-    const id = useRecoilValue(idAtom);
+    const memberId = useRecoilValue(idAtom);
     const role = useRecoilValue(roleAtom);
+    const email = useRecoilValue(emailAtom);
+    const name = useRecoilValue(nameAtom);
+
+
+    useEffect(() => {
+        const fetchNoticeDetails = async () => {
+
+            try {
+
+                const NoticeFileRequest = {
+                    memberId: memberId,
+                    noticeId: noticeId,
+                };
+
+                const noticeResponse = await api(`api/v1/notices/${noticeId}`, 'GET');
+                setNoticeDetails(noticeResponse.data);
+
+                setFormData({
+                    title: noticeDetails.title,
+                    upLoadTime: currentDate,
+                    content: noticeDetails.content,
+                    fileUrl: noticeDetails.fileUrl || '',
+                });
+
+                const fileResponse = await api(`api/v1/notices/getNoticeFile`, 'POST', NoticeFileRequest);
+                setFiles(fileResponse.data);
+
+            } catch (error) {
+                alert('Error fetching notice details:', error);
+            }
+        };
+
+        fetchNoticeDetails();
+    }, [noticeId, memberId]);
+
+    console.log(formData);
 
     const openModal = () => {
         setModalIsOpen(true);
@@ -20,14 +66,14 @@ const ModifyNotice = ({ files, setFiles }, location) => {
         setModalIsOpen(false);
     };
 
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+    const handleFileChange = (selectedFile) => {
+        setFile(selectedFile);
     };
 
     const handleUpload = async (e) => {
         e.preventDefault();
         const formData = new FormData();
-        const adminId = id;
+        const adminId = memberId;
         const adminBoardId = 111;
         const fileName = file.name;
         formData.append('file', file);
@@ -38,9 +84,9 @@ const ModifyNotice = ({ files, setFiles }, location) => {
         try {
             const response = await api('/api/v1/notices/uploadNoticeFile', 'POST', formData);
 
-            if (response.errorMsg === "") {
+            if (response.code === "OK") {
                 console.log(response);
-                setFiles((files) => [...files, response.data]);
+                setFiles((currentFiles) => [...currentFiles, response.data]);
                 alert("성공");
             } else {
                 alert("실패");
@@ -51,12 +97,6 @@ const ModifyNotice = ({ files, setFiles }, location) => {
     };
     console.log(files);
 
-    const [formData, setFormData] = useState({
-        title: noticeDetails.title,
-        upLoadTime: currentDate,
-        content: noticeDetails.content,
-        fileUrl: noticeDetails.fileUrl || '',
-    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -69,31 +109,31 @@ const ModifyNotice = ({ files, setFiles }, location) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const NoticeCreateRequest = {
-            memberId: id,
+        const NoticeUpdateRequest = {
+            memberId: memberId,
             title: formData.title,
             createAt: formData.upLoadTime,
             content: formData.content,
             fileUrl: formData.fileUrl,
-            email: "admin@gmail.com"
+            email: email
         };
 
-        const adminResponse = await api('/api/v1/notices', 'POST', NoticeCreateRequest);
+        const adminResponse = await api('/api/v1/notices/info', 'POST', NoticeUpdateRequest);
         console.log(adminResponse);
 
         if (adminResponse.code === 'OK') {
-            alert('공지 작성 성공!');
+            alert('공지 수정 성공!');
             setFormData({
-                title: '',
-                content: '',
-                fileUrl: '',
+                title: formData.title,
+                content: formData.content,
+                fileUrl: formData.fileUrl,
             });
         } else {
-            alert('공지 작성 실패!');
+            alert('공지 수정 실패!');
             setFormData({
-                title: '',
-                content: '',
-                fileUrl: '',
+                title: formData.title,
+                content: formData.content,
+                fileUrl: formData.fileUrl,
             });
         }
     };
@@ -120,7 +160,7 @@ const ModifyNotice = ({ files, setFiles }, location) => {
                             <label htmlFor="notice" className="form-label">
                                 작성자:
                             </label>
-                            <input id="notice" name="notice" className="form-control" value={"관리자"} readOnly={true} />
+                            <input id="notice" name="notice" className="form-control" value={name} readOnly={true} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="content" className="form-label">
@@ -144,14 +184,13 @@ const ModifyNotice = ({ files, setFiles }, location) => {
                                 <button type="button" className="btn btn-primary" onClick={openModal}>+</button>
                             </div>
                             <button type="submit" className="btn btn-primary">
-                                보내기
+                                수정
                             </button>
                         </div>
                     </form>
                 </div>
             )}
-            <FileUploadModal isOpen={modalIsOpen} onRequestClose={closeModal} onRequestUpload={handleUpload} onRequestChange={() => handleFileChange()}>
-            </FileUploadModal>
+            <FileUploadModal isOpen={modalIsOpen} onRequestClose={closeModal} setFiles={setFiles} onRequestChange={handleFileChange} />
         </div>
     );
 };

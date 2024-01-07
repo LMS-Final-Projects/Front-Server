@@ -40,7 +40,7 @@ const WriteNotice = ({files, setFiles}) => {
             const response = await api('/api/v1/notices/uploadNoticeFile', 'POST',
                 formData);
 
-            if (response.errorMsg === "") {
+            if (response.code === "OK") {
                 console.log(response)
                 setFiles((files) => [...files, response.data]);
                 alert("성공")
@@ -52,13 +52,14 @@ const WriteNotice = ({files, setFiles}) => {
         }
 
     };
+
     console.log(files)
 
     const [formData, setFormData] = useState({
         title: '',
         upLoadTime: currentDate,
         content: '',
-        fileUrl: '',
+        fileUrls: [],
     });
 
     const handleChange = (e) => {
@@ -75,10 +76,8 @@ const WriteNotice = ({files, setFiles}) => {
         const NoticeCreateRequest = {
             memberId: id,
             title: formData.title,
-            createAt: formData.upLoadTime,
             content: formData.content,
-            fileUrl: formData.fileUrl,
-            email: "admin@gmail.com"
+            fileUrls: formData.fileUrls,
         };
 
         const adminResponse = await api('/api/v1/notices', 'POST', NoticeCreateRequest);

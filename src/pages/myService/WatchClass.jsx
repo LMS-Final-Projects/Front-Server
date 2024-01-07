@@ -41,7 +41,7 @@ function WatchClass() {
     const handleCourseDetails = async (lectureId) => {
         try {
             const response = await api(`api/v1/classes/${lectureId}`, 'GET');
-            if (response.errorMsg === '') {
+            if (response.code === 'OK') {
                 alert('강의 호출 성공!');
             } else {
                 alert('강의 호출 실패:', response.statusText);

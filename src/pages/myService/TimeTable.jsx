@@ -2,42 +2,61 @@ import { idAtom, roleAtom } from "../../atom/LoginAtom";
 import { useNavigate } from "react-router";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { api } from "../../api/Api";
 
 const Timetable = () => {
-  const [schedule, setSchedule] = useState([]);
-  const [lecture, setLecture] = useState([]);
-  const [lectureId, setLectureId] = useState([]);
   const id = useRecoilValue(idAtom);
   const role = useRecoilValue(roleAtom);
   const navigate = useNavigate();
 
+  const [scheduleData, setScheduleData] = useState({
+    memberId: id,
+    weekdayList: [
+      {
+        id: 1,
+        memberId: id,
+        dayOfWeek: "MONDAY",
+        lectureId: 1000,
+        schedule: {
+          memberId: id,
+          semester: "FIRST",
+          year: 2023,
+        },
+      },
+      {
+        id: 2,
+        memberId: id,
+        dayOfWeek: "WEDNESDAY",
+        lectureId: 1001,
+        schedule: {
+          memberId: id,
+          semester: "FIRST",
+          year: 2023,
+        },
+      },
+    ],
+    semester: "FIRST",
+    year: 2023,
+  });
+
+  const lectures = [
+    {
+      id: 1000,
+      lectureName: "공업 수학1",
+      professorName: "교수1",
+      classTimes: [1, 2, 3,4],
+    },
+    {
+      id: 1001,
+      lectureName: "공업 수학2",
+      professorName: "교수1",
+      classTimes: [1,2,3,4,],
+    },
+    // Add more lectures as needed
+  ];
+
   useEffect(() => {
-    const fetchTable = async () => {
-      try {
-        // id가 정의되어 있을 때에만 API 호출
-        if (id !== undefined) {
-          console.log(id);
-          const response = await api(`api/v1/schedule/${id}`, "GET");
-          setSchedule(response.data.weekday);
-          setLectureId(response.data.weekday.lectureId);
-          console.log(response.data);
-
-          // 여기서 추가 비동기 호출 수행
-          const lectureResponse = await api(
-              `api/v1/schedule/lecture/${response.data.weekday.lectureId}`,
-              "GET");
-          console.log(lectureResponse.data);
-          setLecture(lectureResponse.data);
-        }
-      } catch (error) {
-        console.error("Error fetching schedule:", error);
-        // Use console.error instead of alert for better debugging
-      }
-    };
-
-    fetchTable();
-  }, [id]); // id가 변경될 때마다 useEffect가 다시 실행되도록 의존성 배열에 추가
+    console.log("Schedule Data:", scheduleData);
+  }, []);
 
   const handleCourseClick = (id) => {
     try {
@@ -51,7 +70,7 @@ const Timetable = () => {
     }
   };
 
-  const daysOfWeek = ["월요일", "화요일", "수요일", "목요일", "금요일"];
+  const daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
 
   return (
       <>
@@ -71,26 +90,34 @@ const Timetable = () => {
               </tr>
               </thead>
               <tbody>
-              {schedule &&
-                  schedule.map((weekday) => (
-                      <tr key={weekday.id}>
-                        <td>
-                          <div
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleCourseClick(weekday.lectureId)}
-                          >
-                            {"강의 이름"}
-                          </div>
-                        </td>
-                        {daysOfWeek.map((day, index) => (
-                            <td key={index}>
-                              {weekday.dayOfWeek &&
-                                  weekday.dayOfWeek === day}
-                            </td>
-                        ))}
-                        <td>{"교수 이름"}</td>
-                      </tr>
-                  ))}
+              {Array.from({ length: 8 }).map((_, hourIndex) => (
+                  <tr key={hourIndex}>
+                    <td>
+                      <div>{hourIndex + 1}</div>
+                    </td>
+                    {daysOfWeek.map((day, dayIndex) => {
+                      const lecture = scheduleData.weekdayList.find(
+                          (item) =>
+                              item.dayOfWeek === day &&
+                              lectures.some((lec) => lec.id === item.lectureId && lec.classTimes.includes(hourIndex + 1))
+                      );
+
+                      const lectureName = lecture ? lectures.find((lec) => lec.id === lecture.lectureId)?.lectureName : "";
+
+                      return (
+                          <td key={dayIndex}>
+                            {lecture ? (
+                                <div style={{ cursor: "pointer" }} onClick={() => handleCourseClick(lecture.lectureId)}>
+                                  {lectureName}
+                                </div>
+                            ) : (
+                                ""
+                            )}
+                          </td>
+                      );
+                    })}
+                  </tr>
+              ))}
               </tbody>
             </table>
           </div>

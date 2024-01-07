@@ -245,7 +245,7 @@ const WritePost2 = () => {
                             <label htmlFor="notice" className="form-label">
                                 email:
                             </label>
-                            <input id="email" name="eamil" className="form-control" value={"admin@google.com"} readOnly={true} />
+                            <input id="email" name="eamil" className="form-control" value={email} readOnly={true} />
                         </div>
                         <div className="mb-3">
                             <label htmlFor="notice" className="form-label">

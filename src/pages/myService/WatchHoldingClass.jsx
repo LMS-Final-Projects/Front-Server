@@ -101,7 +101,7 @@ function WatchHoldingClass() {
             const lectureIds = selectedHoldings.map(selectedHolding => selectedHolding.id);
             // 여기에서 선택된 클래스들을 삭제하는 로직을 수행해야 합니다.
             const response = await api('api/v1/lectures/delete', 'POST', { lectureIds });
-            if (response.errorMsg === '') {
+            if (response.code === 'OK') {
                 alert('강의 삭제 성공!');
             } else {
                 alert('강의 삭제 실패:', response.statusText);
@@ -147,7 +147,7 @@ function WatchHoldingClass() {
                                     <td>{holding.lectureName}</td>
                                     <td>{holding.professorName}</td>
                                     <td>{holding.score}</td>
-                                    <td>대기중</td>
+                                    <td>{holding.status}</td>
                                     <td>
                                         <input
                                             type="checkbox"

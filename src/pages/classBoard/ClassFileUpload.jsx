@@ -39,7 +39,7 @@ const ClassFileUpload = ({files, setFiles}) => {
             const response = await api('/api/v1/classes/uploadClassFile', 'POST',
                 formData);
 
-            if (response.errorMsg === "") {
+            if (response.code === "OK") {
                 console.log(response)
                 setFiles((files) => [...files, response.data]);
                 alert("성공")

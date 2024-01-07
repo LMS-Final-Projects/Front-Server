@@ -8,7 +8,7 @@ import WatchNotice from "../pages/notice/WatchNotice";
 import WatchClass from "../pages/myService/WatchClass";
 import TimeTable from "../pages/myService/TimeTable";
 import GetStudentGrade from "../pages/grade/GetStudentGrade";
-import WatchPost from "../pages/post/WatchPost";
+
 import WritePost2 from "../pages/post/WritePost2";
 import WatchHoldingClass from "../pages/myService/WatchHoldingClass";
 import WriteNotice from "../pages/notice/WriteNotice";
@@ -21,21 +21,22 @@ import RegistrationForm from "../pages/myService/RegistrationForm";
 import GetProfessorGrade from "../pages/grade/GetProfessorGrade";
 import Application from "../pages/application/Application";
 import Accept from "../pages/application/Accept";
+import WatchPost from "../pages/post/WatchPost";
 
 function MainRouter({ Toggle,Role }) {
     return (
         <div className='px-3' >
-            <Nav Toggle={Toggle} />
+            <Nav Toggle={Toggle}  />
                 <Routes>
                     <Route path="/" element={<Main />}/>
                     {Role = "STUDENT" && <Route path="/student/*" >
                         <Route path="myService/*">
                             <Route path="myLecture" element={<WatchClass />} />
                             <Route path="mySchedule" element={<TimeTable />} />
-                            <Route path="myLecture/watchClass/:classId" element={<WatchClassDetails />}/>
+                            <Route path="myLecture/watchClass/:classId" element={<WatchClassDetails/>}/>
                             <Route path="myHoldingLecture" element={<WatchHoldingClass />} />
                         </Route>
-                        <Route path="post" element={<WatchPost/>}/>
+                        <Route path="post" element={<WatchPost />}/>
                         <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />} />
                         <Route path="application" element={<Application />}/>
@@ -50,7 +51,7 @@ function MainRouter({ Toggle,Role }) {
                             <Route path="registration" element={<RegistrationForm />} />
                             <Route path="myHoldingLecture" element={<WatchHoldingClass />} />
                         </Route>
-                        <Route path="post/*" element={<WatchPost/>}/>
+                        <Route path="post" element={<WatchPost />}/>
                         <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />} />
                         <Route path="notice/watchNotice/:noticeId" element={<WatchNoticeDetails/>} />
@@ -60,12 +61,12 @@ function MainRouter({ Toggle,Role }) {
                     }
                     {Role = "ADMIN" && <Route path="/admin/*" >
                         <Route path="lecture" element={<AcceptLecture/>}/>
-                        <Route path="post/*" element={<WatchPost/>}/>
+                        <Route path="post" element={<WatchPost />}/>
                         <Route path="post/writePost" element={<WritePost2 />} />
                         <Route path="notice"element={<WatchNotice />}/>
                         <Route path="notice/watchNotice/:noticeId" element={<WatchNoticeDetails/>} />
                         <Route path="notice/writeNotice" element={<WriteNotice />} />
-                        <Route path="notice/modifyNotice/:noticeDetails" element={<ModifyNotice />} />
+                        <Route path="notice/modifyNotice/:noticeId" element={<ModifyNotice />} />
                     </Route>
                     }
                 </Routes>
