@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {api} from "../../global/api/Api";
+import {api} from "../../api/Api";
 
 const GradeReportContainer = styled.div`
   max-width: 800px;
@@ -76,6 +76,7 @@ const GetStudentGrade = () => {
 
     return (
         <div className={"_right-content"}>
+            <div className="bg-dark text-white p-2 mb-4">성적 서비스</div>
             <GradeReportContainer>
             <div style={{ float: 'right', marginRight: '20px', marginTop: '20px' }}>
                 <label htmlFor="year">년도:</label>

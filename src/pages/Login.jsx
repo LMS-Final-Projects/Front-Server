@@ -145,11 +145,6 @@ const ButtonsContainer = styled.div`
   padding: 10px;
 `;
 
-const Container2 = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const AuthButton = styled.button`
   padding: 8px 15px; /* 적절한 패딩 값으로 조정 */
   margin: 0 5px; /* 적절한 마진 값으로 조정 */
@@ -192,6 +187,20 @@ function Login() {
   const [switchButton, setSwitchButton] = useState(true);
   const [isVerification, setIsVerification] = useState(false);
   const navigate = useNavigate();
+  const [selectedMajor, setSelectedMajor] = useState('');
+
+  const handleMajorClick = (majorName) => {
+    // 클릭한 majorName을 선택한 major로 설정
+    setSelectedMajor(majorName);
+
+    // majorList에서 클릭한 majorName을 제거
+    const updatedMajorList = user.majorList.filter((major) => major.majorName !== majorName);
+    setUser((prevUser) => ({
+      ...prevUser,
+      majorList: updatedMajorList,
+    }));
+
+  };
 
   const [user, setUser] = useState({
     userId: "",
@@ -208,7 +217,7 @@ function Login() {
   const getMajors = async (e) => {
     e.preventDefault();
     try {
-      const response = await exceptionApi("api/v1/major/lists");
+      const response = await exceptionApi("api/v1/major");
       const majors = await response.data;
       console.log(response.data);
       setMajors(majors); // 전공 데이터 설정
@@ -281,11 +290,12 @@ function Login() {
     try {
       const data = {
         ...user,
-        majorIds: user.majorList.map((major) => major.id),
+        majorNames: user.majorList.map((major) => major.majorName),
       };
       if (isVerification) {
         await exceptionApi("/api/v1/member/signup", "POST", data);
         window.location.reload();
+        console.log(data);
       } else {
         alert("이메일 인증 해주세요.");
       }
@@ -382,14 +392,30 @@ function Login() {
           </ModalButton>
         </ButtonsContainer>
         <Form>
-          <Label htmlFor="userId">아이디</Label>
-          <Input
-            type="text"
-            id="userId"
-            required
-            minLength={4}
-            onChange={onChangeHandler}
-          />
+          <Label htmlFor="email">이메일</Label>
+          <TextContainer>
+            <Input
+                type="email"
+                id="email"
+                $emailInput="true"
+                required
+                minLength={4}
+                onChange={onChangeHandler}
+            />
+            <AuthButton onClick={getVerificationNumber}>인증 요청</AuthButton>
+          </TextContainer>
+          <Label htmlFor="verificationNumber">인증번호</Label>
+          <TextContainer>
+            <Input
+                type="text"
+                id="verificationNumber"
+                $emailInput="true"
+                required
+                minLength={4}
+                onChange={onChangeHandler}
+            />
+            <AuthButton onClick={postVerificationNumber}>인증 하기</AuthButton>
+          </TextContainer>
           <Label htmlFor="password">비밀번호</Label>
           <Input
             type="password"
@@ -407,54 +433,35 @@ function Login() {
             onChange={onChangeHandler}
           />
           <Label htmlFor="majorName">전공</Label>
-          <MajorListContainer>
+          <div className="list-group">
             {majors &&
               majors.map((major) => (
-                <MajorItem
+                <div className="list-group-item"
                   type="button"
                   key={major.id}
                   onClick={(e) => handleMajorSelect(e, major)}
                 >
                   {major.majorName}
-                </MajorItem>
+                </div>
               ))}
-          </MajorListContainer>
-          <Label htmlFor="majorName">전공</Label>
-          <MajorListContainer>
+          </div>
+          <Label htmlFor="majorName">선택 전공</Label>
+          <div className="list-group">
             {user &&
               user.majorList.map((major, i) => (
-                <MajorItem type="button" key={major + "_" + i}>
-                  {major.majorName}
-                </MajorItem>
+                  <div
+                      className={`list-group-item ${major.majorName === selectedMajor ? 'active' : ''}`}
+                      key={major.majorName + '_' + i}
+                      onClick={() => handleMajorClick(major.majorName)}
+                      role="button"
+                  >
+                    {major.majorName}
+                  </div>
               ))}
-          </MajorListContainer>
+          </div>
           <InputContainer>
             <AuthButton onClick={getMajors}>전공 조회</AuthButton>
           </InputContainer>
-          <Label htmlFor="email">이메일</Label>
-          <TextContainer>
-          <Input
-            type="email"
-            id="email"
-            $emailInput="true"
-            required
-            minLength={4}
-            onChange={onChangeHandler}
-          />
-            <AuthButton onClick={getVerificationNumber}>인증 요청</AuthButton>
-          </TextContainer>
-          <Label htmlFor="verificationNumber">인증번호</Label>
-          <TextContainer>
-          <Input
-            type="text"
-            id="verificationNumber"
-            $emailInput="true"
-            required
-            minLength={4}
-            onChange={onChangeHandler}
-          />
-            <AuthButton onClick={postVerificationNumber}>인증 하기</AuthButton>
-          </TextContainer>
           <Label htmlFor="phNumber">전화번호</Label>
           <Input type="text" id="phNumber" onChange={onChangeHandler} />
           <Button onClick={signUp}>가입하기</Button>
